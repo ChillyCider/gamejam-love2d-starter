@@ -361,6 +361,17 @@ local function fromString(s)
     return parseValue(t)
 end
 
+---@param fname string
+---@return any
+local function load(fname)
+    local contents, err = love.filesystem.read(fname)
+    if type(err) == "string" then
+        error(err)
+    end
+    return fromString(contents)
+end
+
 return {
-    fromString=fromString
+    fromString=fromString,
+    load=load,
 }
