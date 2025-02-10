@@ -140,6 +140,7 @@ elif [ "x$BUILD_TYPE" = "xwin64" ]; then
     cp -T -r "platform/win64" "$OUTPUT_DIR"
     cat "platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
+    echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
 else
     echo "Unknown build type '$BUILD_TYPE'" >&2
     exit 1
