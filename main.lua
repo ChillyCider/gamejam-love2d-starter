@@ -21,7 +21,7 @@ _G.images = Proxy(function(k)
 end)
 ---@type table<string, AsepriteSheet>
 _G.sheets = Proxy(function(k)
-    return AsepriteSheet.new(_G.images[k], "assets/images/" .. k .. ".json")
+    return AsepriteSheet(_G.images[k], "assets/images/" .. k .. ".json")
 end)
 ---@type table<string, love.Font>
 _G.fonts = Proxy(function(k)

@@ -2,19 +2,6 @@
 local AsepriteAnimPlayer = {}
 local MT = {__index=AsepriteAnimPlayer}
 
----Returns a new Aseprite sheet player.
----
----@param asepriteSheet AsepriteSheet
----@param tagName string?
----@return AsepriteAnimPlayer
-function AsepriteAnimPlayer.new(asepriteSheet, tagName)
-    local obj = setmetatable({}, MT)
-
-    obj:play(asepriteSheet, tagName)
-
-    return obj
-end
-
 ---Sets the animation player to play a specific tag of the Aseprite sheet.
 ---
 ---@param asepriteSheet AsepriteSheet Aseprite sheet.
@@ -110,4 +97,15 @@ function AsepriteAnimPlayer:draw(x, y, r, sx, sy, ox, oy)
     love.graphics.draw(self.asepriteSheet.image, self.asepriteSheet.quads[self.frameIndex], x, y, r, sx, sy, ox, oy)
 end
 
-return AsepriteAnimPlayer
+---Returns a new Aseprite sheet player.
+---
+---@param asepriteSheet AsepriteSheet
+---@param tagName string?
+---@return AsepriteAnimPlayer
+return function(asepriteSheet, tagName)
+    local obj = setmetatable({}, MT)
+
+    obj:play(asepriteSheet, tagName)
+
+    return obj
+end

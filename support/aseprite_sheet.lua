@@ -7,12 +7,25 @@ local json = require "support.json"
 local AsepriteSheet = {}
 local MT = {__index=AsepriteSheet}
 
+---Finds and returns a named tag in the sprite sheet.
+---
+---@param tagName string The name of the tag to find.
+function AsepriteSheet:tag(tagName)
+    for _, tag in ipairs(self.data.meta.frameTags or {}) do
+        if tag.name == tagName then
+            return tag
+        end
+    end
+
+    return nil
+end
+
 ---Returns a new Aseprite sprite sheet.
 ---
 ---@param imageOrImagePath love.Image|string The image for the sprite sheet.
 ---@param sheetDataOrPath any The decoded JSON Aseprite sprite sheet, or the path to that JSON file.
 ---@return AsepriteSheet
-function AsepriteSheet.new(imageOrImagePath, sheetDataOrPath)
+return function(imageOrImagePath, sheetDataOrPath)
     if type(imageOrImagePath) == "string" then
         imageOrImagePath = love.graphics.newImage(imageOrImagePath)
     end
@@ -49,18 +62,3 @@ function AsepriteSheet.new(imageOrImagePath, sheetDataOrPath)
 
     return sheet
 end
-
----Finds and returns a named tag in the sprite sheet.
----
----@param tagName string The name of the tag to find.
-function AsepriteSheet:tag(tagName)
-    for _, tag in ipairs(self.data.meta.frameTags or {}) do
-        if tag.name == tagName then
-            return tag
-        end
-    end
-
-    return nil
-end
-
-return AsepriteSheet
