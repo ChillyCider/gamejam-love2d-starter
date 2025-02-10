@@ -5,9 +5,9 @@ if [ "x$1" = "x" ]; then
     exit 1
 fi
 
-GAME_WIDTH=$(cat conf.lua | gawk 'match($0, /\.width\s*=\s*([0-9]+)/, m) { print m[1] }')
-GAME_HEIGHT=$(cat conf.lua | gawk 'match($0, /\.height\s*=\s*([0-9]+)/, m) { print m[1] }')
-GAME_TITLE=$(cat conf.lua | gawk 'match($0, /\.title\s*=\s*"([^"]+)"/, m) { print m[1] }')
+GAME_WIDTH="$(cat conf.lua | gawk 'match($0, /\.width\s*=\s*([0-9]+)/, m) { print m[1] }')"
+GAME_HEIGHT="$(cat conf.lua | gawk 'match($0, /\.height\s*=\s*([0-9]+)/, m) { print m[1] }')"
+GAME_TITLE="$(cat conf.lua | gawk 'match($0, /\.title\s*=\s*"([^"]+)"/, m) { print m[1] }')"
 
 echo "Game width detected in conf.lua as $GAME_WIDTH"
 echo "Game height detected in conf.lua as $GAME_HEIGHT"
