@@ -34,7 +34,7 @@ end)
 _G.sounds = Proxy(function(k)
     return love.sound.newSoundData("assets/sounds/" .. k .. ".wav")
 end)
----@type table<string, [string, string]>
+---@type table<string, string>
 _G.music = Proxy(function(k)
     return "assets/music/" .. k .. ".ogg"
 end)

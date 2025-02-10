@@ -28,7 +28,6 @@ cat <<EOF > "$1/index.html"
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, minimum-scale=1, maximum-scale=1">
     <title>$GAME_TITLE</title>
 
-    <!-- Load custom style sheet -->
     <style type="text/css">
       html, body { margin: 0; padding: 0; }
       #canvas {
