@@ -30,13 +30,13 @@ _G.fonts = Proxy(function(k)
     end
     return love.graphics.newFont("assets/fonts/" .. k .. ".ttf")
 end)
----@type table<string, love.Source>
+---@type table<string, love.SoundData>
 _G.sounds = Proxy(function(k)
-    return love.audio.newSource("assets/sounds/" .. k .. ".wav", "static")
+    return love.sound.newSoundData("assets/sounds/" .. k .. ".wav")
 end)
----@type table<string, love.Source>
+---@type table<string, [string, string]>
 _G.music = Proxy(function(k)
-    return love.audio.newSource("assets/music/" .. k .. ".ogg", "stream")
+    return "assets/music/" .. k .. ".ogg"
 end)
 ---@type table<string, table>
 _G.states = Proxy(function(k)
