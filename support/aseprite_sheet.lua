@@ -26,6 +26,10 @@ function AsepriteSheet.new(imageOrImagePath, sheetDataOrPath)
         sheetDataOrPath = json.fromString(contents)
     end
 
+    if not sheetDataOrPath.frames[1] then
+        error("Try exporting the sheet from Aseprite with the JSON style set to Array, not Hash", 2)
+    end
+
     local sheet = setmetatable({
         image=imageOrImagePath,
         data=sheetDataOrPath,
