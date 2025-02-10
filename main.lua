@@ -4,6 +4,7 @@ local AsepriteSheet = require "support.aseprite_sheet"
 
 _G.images = {} ---@type table<string, love.Image>
 _G.sheets = {} ---@type table<string, AsepriteSheet>
+_G.fonts = {} ---@type table<string, love.Font>
 _G.sounds = {} ---@type table<string, love.Source>
 _G.music = {} ---@type table<string, love.Source>
 _G.states = {} ---@type table<string, table>
@@ -23,6 +24,17 @@ function love.load()
                 if love.filesystem.getInfo(jsonPath, "file") then
                     _G.sheets[withoutExt] = AsepriteSheet.new(img, jsonPath)
                 end
+            end
+        end
+    end
+
+    -- FONTS
+    do
+        local fileNames = love.filesystem.getDirectoryItems("assets/fonts/")
+        for _, name in ipairs(fileNames) do
+            if name:match("%.fnt$") or name:match("%.ttf$") then
+                local fnt = love.graphics.newFont("assets/fonts/" .. name)
+                _G.fonts[name:gsub("(%.%w+)$", "")] = fnt
             end
         end
     end
