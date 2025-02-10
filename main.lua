@@ -14,7 +14,7 @@ function love.load()
     do
         local fileNames = love.filesystem.getDirectoryItems("assets/images/")
         for _, name in ipairs(fileNames) do
-            if name:match("%.png$") then
+            if name:match("%.png$") or name:match("%.jpg$") then
                 local img = love.graphics.newImage("assets/images/" .. name)
                 local withoutExt = name:gsub("(%.%w+)$", "")
                 _G.images[withoutExt] = img
