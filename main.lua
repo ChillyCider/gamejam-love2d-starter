@@ -69,10 +69,6 @@ function love.load()
         error(err)
     end
     firstState = firstState:gsub("^%s*([^%s]+)%s*$", "%1")
-    print("= " .. firstState)
-    for k,_ in pairs(_G.states) do
-        print("--> " .. k)
-    end
     GS.switch(_G.states[firstState])
 end
 
