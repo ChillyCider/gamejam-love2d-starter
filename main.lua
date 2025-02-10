@@ -1,5 +1,11 @@
 local GS = require "hump.gamestate"
 local Timer = require "hump.timer"
+local AsepriteSheet = require "support.aseprite_sheet"
+
+_G.images = {} ---@type table<string, love.Image>
+_G.sheets = {} ---@type table<string, AsepriteSheet>
+_G.sounds = {} ---@type table<string, love.Source>
+_G.music = {} ---@type table<string, love.Source>
 
 function love.load()
     GS.registerEvents()
@@ -13,7 +19,14 @@ function love.load()
         for _, name in ipairs(fileNames) do
             if name:match("%.png$") then
                 local img = love.graphics.newImage("assets/images/" .. name)
-                _G.images[name:gsub("(%.%w+)$", "")] = img
+                local withoutExt = name:gsub("(%.%w+)$", "")
+                _G.images[withoutExt] = img
+
+                -- Try to load asesprite animation too if possible
+                local jsonPath = "assets/images/" .. withoutExt .. ".json"
+                if love.filesystem.getInfo(jsonPath, "file") then
+                    _G.sheets[withoutExt] = AsepriteSheet.new(img, jsonPath)
+                end
             end
         end
     end
@@ -48,4 +61,7 @@ end
 
 function love.update(dt)
     Timer.update(dt)
+end
+
+function love.draw()
 end
