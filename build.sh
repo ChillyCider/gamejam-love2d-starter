@@ -1,9 +1,12 @@
 #!/bin/bash
 
-if [ "x$1" = "x" ]; then
-    echo "usage: $0 dir-to-produce" >&2
+if [ "x$1" = "x" -o "x$2" = "x" ]; then
+    echo "usage: $0 {web|win64} dir-to-produce" >&2
     exit 1
 fi
+
+BUILD_TYPE="$1"
+OUTPUT_DIR="$2"
 
 GAME_WIDTH="$(cat conf.lua | gawk 'match($0, /\.width\s*=\s*([0-9]+)/, m) { print m[1] }')"
 GAME_HEIGHT="$(cat conf.lua | gawk 'match($0, /\.height\s*=\s*([0-9]+)/, m) { print m[1] }')"
@@ -13,13 +16,15 @@ echo "Game width detected in conf.lua as $GAME_WIDTH"
 echo "Game height detected in conf.lua as $GAME_HEIGHT"
 echo "Game title detected in conf.lua as $GAME_TITLE"
 
-folder=$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")
+folder="$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")"
 trap "rm -rf $folder" EXIT
 
-zip -q -r $folder/game.love assets/ hump/ states/ support/ main.lua
-npx love.js -c $folder/game.love -t "$GAME_TITLE" "$1"
-rm -rf "$1/theme"
-cat <<EOF > "$1/index.html"
+zip -q -r "$folder/game.love" assets/ hump/ states/ support/ main.lua
+
+if [ "x$BUILD_TYPE" = "xweb" ]; then
+    npx love.js -c "$folder/game.love" -t "$GAME_TITLE" "$OUTPUT_DIR"
+    rm -rf "$OUTPUT_DIR/theme"
+    cat <<EOF > "$OUTPUT_DIR/index.html"
 <!doctype html>
 <html lang="en-us">
   <head>
@@ -131,3 +136,11 @@ cat <<EOF > "$1/index.html"
   </body>
 </html>
 EOF
+elif [ "x$BUILD_TYPE" = "xwin64" ]; then
+    cp -T -r "platform/win64" "$OUTPUT_DIR"
+    cat "platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
+    mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
+else
+    echo "Unknown build type '$BUILD_TYPE'" >&2
+    exit 1
+fi
