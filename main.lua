@@ -6,15 +6,11 @@ _G.images = {} ---@type table<string, love.Image>
 _G.sheets = {} ---@type table<string, AsepriteSheet>
 _G.sounds = {} ---@type table<string, love.Source>
 _G.music = {} ---@type table<string, love.Source>
+_G.states = {} ---@type table<string, table>
 
 function love.load()
-    GS.registerEvents()
-    GS.switch({})
-
     -- IMAGES
     do
-        _G.images = {}
-
         local fileNames = love.filesystem.getDirectoryItems("assets/images/")
         for _, name in ipairs(fileNames) do
             if name:match("%.png$") then
@@ -33,8 +29,6 @@ function love.load()
 
     -- SOUNDS
     do
-        _G.sounds = {}
-
         local fileNames = love.filesystem.getDirectoryItems("assets/sounds/")
         for _, name in ipairs(fileNames) do
             if name:match("%.wav$") then
@@ -46,8 +40,6 @@ function love.load()
 
     -- MUSIC
     do
-        _G.music = {}
-
         local fileNames = love.filesystem.getDirectoryItems("assets/music/")
         for _, name in ipairs(fileNames) do
             if name:match("%.ogg$") then
@@ -57,6 +49,31 @@ function love.load()
             end
         end
     end
+
+    -- GAME STATES
+    do
+        local fileNames = love.filesystem.getDirectoryItems("states/")
+        for _, name in ipairs(fileNames) do
+            local moduleName = name:match("([^%.]+)%.lua$")
+            if moduleName then
+                _G.states[moduleName] = require("states." .. moduleName)
+            end
+        end
+    end
+
+    GS.registerEvents()
+
+    -- Switch to the first state
+    local firstState, err = love.filesystem.read("states/first_state.txt")
+    if type(err) == "string" then
+        error(err)
+    end
+    firstState = firstState:gsub("^%s*([^%s]+)%s*$", "%1")
+    print("= " .. firstState)
+    for k,_ in pairs(_G.states) do
+        print("--> " .. k)
+    end
+    GS.switch(_G.states[firstState])
 end
 
 function love.update(dt)
