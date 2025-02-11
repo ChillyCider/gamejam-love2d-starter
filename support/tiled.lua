@@ -137,7 +137,7 @@ local function evaluateProperty(tmx, p)
     end
 end
 
----Read the properties of an object. If a property is missing but a gid is present,
+---Read a property of an object. If a property is missing but a gid is present,
 ---the function will look up the gid and check properties there.
 ---
 ---@param tmx any
@@ -153,7 +153,7 @@ local function property(tmx, obj, name)
 
     if obj.gid then
         local _, _, tileData = lookupTile(tmx, obj.gid)
-        for _,p in ipairs(tileData.properties or {}) do
+        for _,p in ipairs(tileData and tileData.properties or {}) do
             if p.name == name then
                 return evaluateProperty(tmx, p)
             end
@@ -161,6 +161,29 @@ local function property(tmx, obj, name)
     end
 
     return nil
+end
+
+---Read ALL the properties of an object. If a property is missing but a gid is present,
+---the function will look up the gid and check properties there.
+---
+---@param tmx any
+---@param obj any
+---@return any?
+local function properties(tmx, obj)
+    local t = {}
+
+    if obj.gid then
+        local _, _, tileData = lookupTile(tmx, obj.gid)
+        for _,p in ipairs(tileData and tileData.properties or {}) do
+            t[p.name] = evaluateProperty(tmx, p)
+        end
+    end
+
+    for _,p in ipairs(obj.properties or {}) do
+        t[p.name] = evaluateProperty(p)
+    end
+
+    return t
 end
 
 return {
@@ -172,5 +195,6 @@ return {
     eachTile=eachTile,
     lookupObject=lookupObject,
     lookupTile=lookupTile,
-    property=property
+    property=property,
+    properties=properties,
 }
