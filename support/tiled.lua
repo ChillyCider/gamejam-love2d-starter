@@ -87,17 +87,21 @@ local function lookupTile(tmx, gid)
 end
 
 ---Iterator for tile GIDs in a tile layer
-local function eachTile(tmx, layer)
-    local x = -1
-    local y = 0
+local function eachTile(tmx, layer, minx, miny, maxx, maxy)
+    minx = minx or 0
+    miny = miny or 0
+    maxx = maxx or layer.width
+    maxy = maxy or layer.height
+    local x = minx - 1
+    local y = miny
     return function()
         x = x + 1
-        if x >= layer.width then
-            x = 0
+        if x >= maxx then
+            x = minx
             y = y + 1
         end
 
-        if x < layer.width and y < layer.height then
+        if x < maxx and y < maxy then
             local gid = layer.data[y*layer.width + x]
             local tileset, internalId, tileData = lookupTile(tmx, gid)
             return x, y, gid, tileData, tileset, internalId
