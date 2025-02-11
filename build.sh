@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "x$1" = "x" -o "x$2" = "x" ]; then
-    echo "usage: $0 {web|win64} dir-to-produce" >&2
+    echo "usage: $0 {web|win32|win64} dir-to-produce" >&2
     exit 1
 fi
 
@@ -138,6 +138,11 @@ if [ "x$BUILD_TYPE" = "xweb" ]; then
 EOF
 elif [ "x$BUILD_TYPE" = "xwin64" ]; then
     cp -T -r "platform/win64" "$OUTPUT_DIR"
+    cat "platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
+    mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
+    echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
+elif [ "x$BUILD_TYPE" = "xwin32" ]; then
+    cp -T -r "platform/win32" "$OUTPUT_DIR"
     cat "platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
