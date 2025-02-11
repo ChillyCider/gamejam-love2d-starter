@@ -143,7 +143,7 @@ elif [ "x$BUILD_TYPE" = "xwin64" ]; then
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
 elif [ "x$BUILD_TYPE" = "xwin32" ]; then
     cp -T -r "platform/win32" "$OUTPUT_DIR"
-    cat "platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
+    cat "platform/win32/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
 else
