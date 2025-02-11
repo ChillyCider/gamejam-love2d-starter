@@ -100,7 +100,7 @@ local function eachTile(tmx, layer)
         if x < layer.width and y < layer.height then
             local gid = layer.data[y*layer.width + x]
             local tileset, internalId, tileData = lookupTile(tmx, gid)
-            return x, y, tileData, tileset, internalId
+            return x, y, gid, tileData, tileset, internalId
         end
     end
 end
