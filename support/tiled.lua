@@ -1,7 +1,5 @@
 -- Helper functions for dealing with Tiled *.tmj files
 
-local json = require "support.json"
-
 ---Returns the directory of a file path.
 ---@param path string
 ---@return string
@@ -22,168 +20,363 @@ local function dirName(path)
     return d
 end
 
----Loops through tmx.tilesets and reads any external tilesets and places their
----definitions into the tmx table. Note that this MODIFIES tmx in place.
+---@class TiledTileLayer
+---@field tiledMap TiledMap
+---@field layerDef any
+local TiledTileLayerBase = {}
+local TiledTileLayerMT = {__index=TiledTileLayerBase}
+
+---Returns a convenience wrapper around a TMJ tile layer.
 ---
----@param tmxPath string Path so we can resolve relative dependencies.
----@param tmx any A decoded JSON tiled map.
----@return any The same tmx object that was passed in.
-local function embedExternalTilesets(tmxPath, tmx)
-    local dir = dirName(tmxPath)
+---@param tiledMap any
+---@param layerDef any
+---@return TiledTileLayer
+function TiledTileLayer(tiledMap, layerDef)
+    return setmetatable({
+        tiledMap=tiledMap,
+        layerDef=layerDef,
+    }, TiledTileLayerMT)
+end
 
-    for _, tileset in ipairs(tmx.tilesets) do
-        if tileset.source then
-            local externalPath = dir .. "/" .. tileset.source
-            local j = json.load(externalPath)
+do
+    ---@return number
+    function TiledTileLayerBase:id() return self.layerDef.id end
 
-            for k, v in pairs(j) do
-                if k == "image" then
-                    -- The image is currently relative to the tileset file
-                    -- We need to get its path from the tmx's perspective
-                    local tilesetDir = dirName(tileset.source)
-                    tileset.image = tilesetDir .. "/" .. v
-                elseif k ~= "tiledversion" and k ~= "version" then
-                    tileset[k] = v
-                end
+    ---@return string
+    function TiledTileLayerBase:name() return self.layerDef.name end
+
+    ---@return number
+    function TiledTileLayerBase:width() return self.layerDef.width end
+
+    ---@return number
+    function TiledTileLayerBase:height() return self.layerDef.height end
+
+    ---@return number
+    function TiledTileLayerBase:offsetx() return self.layerDef.offsetx or 0 end
+
+    ---@return number
+    function TiledTileLayerBase:offsety() return self.layerDef.offsety or 0 end
+
+    ---@return number
+    function TiledTileLayerBase:parallaxx() return self.layerDef.parallaxx or 1 end
+
+    ---@return number
+    function TiledTileLayerBase:parallaxy() return self.layerDef.parallaxy or 1 end
+
+    function TiledTileLayerBase:isTileLayer() return true end
+    function TiledTileLayerBase:isObjectGroup() return false end
+    function TiledTileLayerBase:isImageLayer() return false end
+
+    ---@param x number
+    ---@param y number
+    ---@return number
+    function TiledTileLayerBase:gidAt(x, y)
+        return self.layerDef.data[y*self.layerDef.width + x]
+    end
+
+    function TiledTileLayerBase:resolveProperty(name)
+        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
+    end
+
+    ---@param x number
+    ---@param y number
+    ---@param r number
+    ---@param sx number
+    ---@param sy number
+    ---@param ox number
+    ---@param oy number
+    function TiledTileLayerBase:draw(x, y, r, sx, sy, ox, oy)
+    end
+end
+
+---@class TiledObjectGroup
+---@field tiledMap TiledMap
+---@field layerDef any
+local TiledObjectGroupBase = {}
+local TiledObjectGroupMT = {__index=TiledObjectGroupBase}
+
+---Returns a convenience wrapper around a TMJ object group.
+function TiledObjectGroup(tiledMap, layerDef)
+    return setmetatable({
+        tiledMap=tiledMap,
+        layerDef=layerDef,
+    }, TiledObjectGroupMT)
+end
+
+do
+    ---@return number
+    function TiledObjectGroupBase:id() return self.layerDef.id end
+
+    ---@return string
+    function TiledObjectGroupBase:name() return self.layerDef.name end
+
+    ---@return number
+    function TiledObjectGroupBase:offsetx() return self.layerDef.offsetx or 0 end
+
+    ---@return number
+    function TiledObjectGroupBase:offsety() return self.layerDef.offsety or 0 end
+
+    ---@return number
+    function TiledObjectGroupBase:parallaxx() return self.layerDef.parallaxx or 1 end
+
+    ---@return number
+    function TiledObjectGroupBase:parallaxy() return self.layerDef.parallaxy or 1 end
+
+    function TiledObjectGroupBase:isTileLayer() return false end
+    function TiledObjectGroupBase:isObjectGroup() return true end
+    function TiledObjectGroupBase:isImageLayer() return false end
+
+    ---@return any[]
+    function TiledObjectGroupBase:objects()
+        return self.layerDef.objects
+    end
+
+    function TiledObjectGroupBase:resolveProperty(name)
+        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
+    end
+end
+
+---@class TiledImageLayer
+---@field tiledMap TiledMap
+---@field layerDef any
+local TiledImageLayerBase = {}
+local TiledImageLayerMT = {__index=TiledImageLayerBase}
+
+---Returns a convenience wrapper around a TMJ object group.
+function TiledImageLayer(tiledMap, layerDef)
+    return setmetatable({
+        tiledMap=tiledMap,
+        layerDef=layerDef,
+    }, TiledImageLayerMT)
+end
+
+do
+    ---@return number
+    function TiledImageLayerBase:id() return self.layerDef.id end
+
+    ---@return string
+    function TiledImageLayerBase:name() return self.layerDef.name end
+
+    ---@return number
+    function TiledImageLayerBase:offsetx() return self.layerDef.offsetx or 0 end
+
+    ---@return number
+    function TiledImageLayerBase:offsety() return self.layerDef.offsety or 0 end
+
+    ---@return number
+    function TiledImageLayerBase:parallaxx() return self.layerDef.parallaxx or 1 end
+
+    ---@return number
+    function TiledImageLayerBase:parallaxy() return self.layerDef.parallaxy or 1 end
+
+    function TiledImageLayerBase:isTileLayer() return false end
+    function TiledImageLayerBase:isObjectGroup() return false end
+    function TiledImageLayerBase:isImageLayer() return true end
+
+    function TiledImageLayerBase:resolveProperty(name)
+        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
+    end
+end
+
+---@alias TiledLayer TiledTileLayer|TiledObjectGroup|TiledImageLayer
+
+---@class TiledTileset
+---@field tiledMap TiledMap
+---@field tilesetDef any
+---@field quads love.Quad[]
+local TiledTilesetBase = {}
+local TiledTilesetMT = {__index=TiledTilesetBase}
+
+---@param tiledMap TiledMap
+---@param tilesetDef any
+---@return TiledTileset
+function TiledTileset(tiledMap, tilesetDef)
+    local quads = {}
+
+    if tilesetDef.columns > 0 then
+        for i=0,tilesetDef.tilecount - 1 do
+            table.insert(quads, love.graphics.newQuad(
+                (i % tilesetDef.columns) * tilesetDef.tilewidth,
+                math.floor(i / tilesetDef.columns) * tilesetDef.tileheight,
+                tilesetDef.tilewidth,
+                tilesetDef.tileheight,
+                tilesetDef.imagewidth,
+                tilesetDef.imageheight
+            ))
+        end
+    end
+
+    return setmetatable({
+        tiledMap=tiledMap,
+        tilesetDef=tilesetDef,
+        quads=quads,
+    }, TiledTilesetMT)
+end
+
+do
+    ---@return number
+    function TiledTilesetBase:firstgid() return self.tilesetDef.firstgid end
+
+    ---@return string?
+    function TiledTilesetBase:image() return self.tilesetDef.image end
+
+    ---@return number
+    function TiledTilesetBase:tilewidth() return self.tilesetDef.tilewidth end
+
+    ---@return number
+    function TiledTilesetBase:tileheight() return self.tilesetDef.tileheight end
+
+    ---@return any
+    function TiledTilesetBase:tileData(gid)
+        local internalId = gid - self.tilesetDef.firstgid
+
+        for _, tileDef in ipairs(self.tilesetDef.tiles) do
+            if tileDef.id == internalId then
+                return tileDef
+            end
+        end
+
+        return nil
+    end
+
+    ---@return love.Quad?
+    function TiledTilesetBase:quad(gid)
+        local internalId = gid - self.tilesetDef.firstgid
+        return self.quads[internalId + 1]
+    end
+
+    function TiledTilesetBase:resolveProperty(name)
+        return self.tiledMap:resolvePropertyOnPlain(self.tilesetDef, name)
+    end
+end
+
+---@class TiledMap
+---@field layers TiledLayer[]
+---@field tilesets TiledTileset[]objDef
+---@field tmj any
+local TiledMapBase = {}
+local TiledMapMT = {__index=TiledMapBase}
+
+---@param tmjPath string The path to the TMJ file, used for resolving tileset paths
+---@param jsonLoader fun(path:string):any A JSON loader
+---@return TiledMap
+function TiledMap(tmjPath, jsonLoader)
+    local decodedTMJ = jsonLoader(tmjPath)
+
+    ---@type TiledLayer[]
+    local layers = {}
+    ---@type TiledTileset[]
+    local tilesets = {}
+    local o = {
+        layers=layers,
+        tilesets=tilesets,
+        tmj=decodedTMJ,
+    }
+
+    for _, layerDef in ipairs(decodedTMJ.layers) do
+        if layerDef.type == "tilelayer" then
+            table.insert(layers, TiledTileLayer(o, layerDef))
+        elseif layerDef.type == "objectgroup" then
+            table.insert(layers, TiledObjectGroup(o, layerDef))
+        elseif layerDef.type == "imagelayer" then
+            table.insert(layers, TiledImageLayer(o, layerDef))
+        end
+    end
+
+    local tmjDir = dirName(tmjPath)
+    for _, tilesetDef in ipairs(decodedTMJ.tilesets) do
+        if tilesetDef.source then
+            -- External tileset
+            local tilesetPath = tmjDir .. "/" .. tilesetDef.source
+            local tsj = jsonLoader(tilesetPath)
+
+            -- Apply stuff from the embedded stub to the loaded tsj
+            for k, v in pairs(tilesetDef) do
+                tsj[k] = v
             end
 
-            tileset.source = nil
+            table.insert(tilesets, TiledTileset(o --[[@as TiledMap]], tsj))
+        else
+            -- Embedded tileset
+            table.insert(tilesets, TiledTileset(o --[[@as TiledMap]], tilesetDef))
         end
     end
 
-    return tmx
+    return setmetatable(o, TiledMapMT)
 end
 
----Searches a list of tilesets, checking their firstgid to find
----a given Global Tile ID.
----
----@param tmx any A decoded JSON tiled map WITH external tilesets resolved.
----@param gid number A Global Tile ID.
----@return any The tileset for the given gid, if found.
----@return number? The id of the tile within the tileset.
----@return any The tile data, if it has any in particular.
-local function lookupTile(tmx, gid)
-    local candidateTileset = nil
+do
+    ---Finds and returns a layer by name.
+    ---@param name string The name of the layer
+    ---@return TiledLayer?
+    function TiledMapBase:layerByName(name)
+        for _, layer in ipairs(self.layers) do
+            if layer.layerDef.name == name then
+                return layer
+            end
+        end
 
-    for _, tileset in ipairs(tmx.tilesets) do
-        if gid >= tileset.firstgid and (not candidateTileset or tileset.firstgid > candidateTileset.firstgid) then
-            candidateTileset = tileset
+        return nil
+    end
+
+    function TiledMapBase:layerById(id)
+        for _, layer in ipairs(self.layers) do
+            if layer.layerDef.id == id then
+                return layer
+            end
         end
     end
 
-    if not candidateTileset then
-        return nil, nil, nil
-    end
-
-    local internalId = gid - candidateTileset.firstgid
-    local tileData = nil
-    for _, tile in ipairs(candidateTileset.tiles) do
-        if tile.id == internalId then
-            tileData = tile
-        end
-    end
-
-    return candidateTileset, internalId, tileData
-end
-
----Iterator for tile GIDs in a tile layer
-local function eachTile(tmx, layer, minx, miny, maxx, maxy)
-    minx = minx or 0
-    miny = miny or 0
-    maxx = maxx or layer.width
-    maxy = maxy or layer.height
-    local x = minx - 1
-    local y = miny
-    return function()
-        x = x + 1
-        if x >= maxx then
-            x = minx
-            y = y + 1
-        end
-
-        if x < maxx and y < maxy then
-            local gid = layer.data[y*layer.width + x]
-            local tileset, internalId, tileData = lookupTile(tmx, gid)
-            return x, y, gid, tileData, tileset, internalId
-        end
-    end
-end
-
----@param tmx any
----@param id number
----@return any?
-local function lookupObject(tmx, id)
-    for _, layer in ipairs(tmx.layers) do
-        if layer.type == "objectgroup" then
-            for _, obj in ipairs(layer.objects) do
-                if obj.id == id then
-                    return obj
+    function TiledMapBase:objectById(id)
+        for _, layerDef in ipairs(self.tmj.layers) do
+            if layerDef.type == "objectgroup" then
+                for _, objectDef in ipairs(layerDef.objects) do
+                    if objectDef.id == id then
+                        return objectDef
+                    end
                 end
             end
         end
     end
 
-    return nil
-end
-
----@param tmx any
----@param p any
----@return any
-local function evaluateProperty(tmx, p)
-    if p.type == "string" or p.type == "number" or p.type == "boolean" then
-        return p.value
-    elseif p.type == "object" then
-        return lookupObject(tmx, p.value)
-    end
-end
-
----Read a property of an object. If a property is missing but a gid is present,
----the function will look up the gid and check properties there.
----
----@param tmx any
----@param obj any
----@param name string
----@return any?
-local function property(tmx, obj, name)
-    for _,p in ipairs(obj.properties or {}) do
-        if p.name == name then
-            return evaluateProperty(p)
-        end
-    end
-
-    if obj.gid then
-        local _, _, tileData = lookupTile(tmx, obj.gid)
-        for _,p in ipairs(tileData and tileData.properties or {}) do
+    function TiledMapBase:resolvePropertyOnPlain(def, name)
+        for _,p in ipairs(def.properties or {}) do
             if p.name == name then
-                return evaluateProperty(tmx, p)
+                if p.type == "string" or p.type == "int" or p.type == "bool" or p.type == "float" or p.type == "file" then
+                    return p.value
+                elseif p.type == "object" then
+                    return self:objectById(p.value)
+                end
+            end
+        end
+
+        -- If the item inherits from a tile, look up the property there
+        if def.gid then
+            local tileset = self:tilesetForGid(def.gid)
+            if tileset then
+                local tileData = tileset:tileData(def.gid)
+                if tileData then
+                    return self:resolvePropertyOnPlain(tileData, name)
+                end
             end
         end
     end
 
-    return nil
-end
+    function TiledMapBase:resolveProperty(name)
+        return self:resolvePropertyOnPlain(self.tmj, name)
+    end
 
----Read ALL the properties of an object. If a property is missing but a gid is present,
----the function will look up the gid and check properties there.
----
----@param tmx any
----@param obj any
----@return any?
-local function properties(tmx, obj)
-    local t = {}
+    function TiledMapBase:tilesetForGid(gid)
+        local candidateTileset = nil
 
-    if obj.gid then
-        local _, _, tileData = lookupTile(tmx, obj.gid)
-        for _,p in ipairs(tileData and tileData.properties or {}) do
-            t[p.name] = evaluateProperty(tmx, p)
+        for _, tileset in ipairs(self.tilesets) do
+            if gid >= tileset.tilesetDef.firstgid and (not candidateTileset or tileset.tilesetDef.firstgid > candidateTileset.tilesetDef.firstgid) then
+                candidateTileset = tileset
+            end
         end
-    end
 
-    for _,p in ipairs(obj.properties or {}) do
-        t[p.name] = evaluateProperty(p)
+        return candidateTileset
     end
-
-    return t
 end
 
 return {
@@ -191,10 +384,5 @@ return {
     GID_FLIP_Y=0x40000000,
     GID_FLIP_3=0x20000000,
     GID_FLIP_4=0x10000000,
-    embedExternalTilesets=embedExternalTilesets,
-    eachTile=eachTile,
-    lookupObject=lookupObject,
-    lookupTile=lookupTile,
-    property=property,
-    properties=properties,
+    TiledMap=TiledMap,
 }
