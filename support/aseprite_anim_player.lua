@@ -23,7 +23,14 @@ function AsepriteAnimPlayer:play(asepriteSheet, tagName, loops, forceRestart)
         if tagName then
             local tag = asepriteSheet:tag(tagName)
             if tag then
-                self.frameIndex = tag.from + 1
+                self.tagName = tagName
+
+                if tag.direction == "reverse" then
+                    self.frameIndex = tag.to + 1
+                else
+                    self.frameIndex = tag.from + 1
+                end
+
                 if tag.direction == "pingpong" then
                     self.pingpong = "forward"
                 end
@@ -44,7 +51,7 @@ end
 ---
 ---@param dt number Number of seconds.
 function AsepriteAnimPlayer:update(dt)
-    if not paused or (self.loops > 0 and self.loopsDone == self.loops) then
+    if not paused and (self.loops <= 0 or self.loopsDone < self.loops) then
         self.frameTimer = self.frameTimer - dt
         if self.frameTimer <= 0.0 then
             local from, to, direction
@@ -102,7 +109,7 @@ function AsepriteAnimPlayer:update(dt)
                 end
             end
             
-            if self.loops > 0 and self.loopsDone == self.loops then
+            if self.loops > 0 and self.loopsDone == self.loops and direction ~= "pingpong" then
                 self.frameIndex = oldFrame
             end
 
