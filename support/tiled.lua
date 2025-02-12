@@ -398,15 +398,13 @@ do
     end
 
     function TiledMapBase:tilesetForGid(gid)
-        local candidateTileset = nil
-
         for _, tileset in ipairs(self.tilesets) do
-            if gid >= tileset.tilesetDef.firstgid and (not candidateTileset or tileset.tilesetDef.firstgid > candidateTileset.tilesetDef.firstgid) then
-                candidateTileset = tileset
+            if gid >= tileset.tilesetDef.firstgid and gid < tileset.tilesetDef.firstgid + tileset.tilesetDef.tilecount then
+                return tileset
             end
         end
 
-        return candidateTileset
+        return nil
     end
 end
 
