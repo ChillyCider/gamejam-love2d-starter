@@ -1,4 +1,6 @@
--- Helper functions for dealing with Tiled *.tmj files
+--see docs in docs/tiled.md
+
+--[[ IMPLEMENTATION ]]
 
 ---Returns the directory of a file path.
 ---@param path string
@@ -20,10 +22,52 @@ local function dirName(path)
     return d
 end
 
----@class TiledTileLayer
+---@class TiledLayerCommon
+---Stuff that is shared by all types of layers.
+---
 ---@field tiledMap TiledMap
 ---@field layerDef any
-local TiledTileLayerBase = {}
+local TiledLayerCommon = {}
+local TiledLayerCommonMT = {__index=TiledLayerCommon}
+do
+    ---@return number
+    function TiledLayerCommon:id() return self.layerDef.id end
+
+    ---@return string
+    function TiledLayerCommon:name() return self.layerDef.name end
+
+    ---@return string?
+    function TiledLayerCommon:class() return self.layerDef.class end
+
+    ---@return number
+    function TiledLayerCommon:width() return self.layerDef.width end
+
+    ---@return number
+    function TiledLayerCommon:height() return self.layerDef.height end
+
+    ---@return number
+    function TiledLayerCommon:offsetx() return self.layerDef.offsetx or 0 end
+
+    ---@return number
+    function TiledLayerCommon:offsety() return self.layerDef.offsety or 0 end
+
+    ---@return number
+    function TiledLayerCommon:parallaxx() return self.layerDef.parallaxx or 1 end
+
+    ---@return number
+    function TiledLayerCommon:parallaxy() return self.layerDef.parallaxy or 1 end
+
+    ---@param name string
+    ---@return any
+    function TiledLayerCommon:resolveProperty(name)
+        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
+    end
+end
+
+---@class TiledTileLayer: TiledLayerCommon
+---@field tiledMap TiledMap
+---@field layerDef any
+local TiledTileLayerBase = setmetatable({}, TiledLayerCommonMT)
 local TiledTileLayerMT = {__index=TiledTileLayerBase}
 
 ---Returns a convenience wrapper around a TMJ tile layer.
@@ -39,57 +83,68 @@ function TiledTileLayer(tiledMap, layerDef)
 end
 
 do
-    ---@return number
-    function TiledTileLayerBase:id() return self.layerDef.id end
-
-    ---@return string
-    function TiledTileLayerBase:name() return self.layerDef.name end
-
-    ---@return number
-    function TiledTileLayerBase:width() return self.layerDef.width end
-
-    ---@return number
-    function TiledTileLayerBase:height() return self.layerDef.height end
-
-    ---@return number
-    function TiledTileLayerBase:offsetx() return self.layerDef.offsetx or 0 end
-
-    ---@return number
-    function TiledTileLayerBase:offsety() return self.layerDef.offsety or 0 end
-
-    ---@return number
-    function TiledTileLayerBase:parallaxx() return self.layerDef.parallaxx or 1 end
-
-    ---@return number
-    function TiledTileLayerBase:parallaxy() return self.layerDef.parallaxy or 1 end
-
     function TiledTileLayerBase:isTileLayer() return true end
     function TiledTileLayerBase:isObjectGroup() return false end
     function TiledTileLayerBase:isImageLayer() return false end
 
-    ---@param x number
-    ---@param y number
+    ---Return the tile GID at a given column and row.
+    ---@param x number Column
+    ---@param y number Row
     ---@return number
     function TiledTileLayerBase:gidAt(x, y)
         return self.layerDef.data[y*self.layerDef.width + x]
     end
 
-    function TiledTileLayerBase:resolveProperty(name)
-        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
-    end
+    ---Loops through tiles on this tile layer.
+    ---
+    ---@param minx number Starting column
+    ---@param miny number Starting row
+    ---@param maxx number Ending column (exclusive)
+    ---@param maxy number Ending row (exclusive)
+    function TiledTileLayerBase:iterateTiles(minx, miny, maxx, maxy)
+        -- Restrict the loop to only tiles that are actually within map bounds
+        if minx < 0 then
+            minx = 0
+        elseif minx > self.layerDef.width then
+            minx = self.layerDef.width
+        end
 
-    ---@param x number
-    ---@param y number
-    ---@param r number
-    ---@param sx number
-    ---@param sy number
-    ---@param ox number
-    ---@param oy number
-    function TiledTileLayerBase:draw(x, y, r, sx, sy, ox, oy)
+        if miny < 0 then
+            miny = 0
+        elseif miny > self.layerDef.height then
+            miny = self.layerDef.height
+        end
+
+        if maxx < 0 then
+            maxx = 0
+        elseif maxx > self.layerDef.width then
+            maxx = self.layerDef.width
+        end
+
+        if maxy < 0 then
+            maxy = 0
+        elseif maxy > self.layerDef.height then
+            maxy = self.layerDef.height
+        end
+
+        -- Return a closure that handles the loop
+        local x = minx - 1
+        local y = miny
+        return function()
+            x = x + 1
+            while x >= maxx and y < maxy do
+                x = minx
+                y = y + 1
+            end
+
+            if y < maxy then
+                return x, y, self.layerDef.data[y*self.layerDef.width + x]
+            end
+        end
     end
 end
 
----@class TiledObjectGroup
+---@class TiledObjectGroup: TiledLayerCommon
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledObjectGroupBase = {}
@@ -104,24 +159,6 @@ function TiledObjectGroup(tiledMap, layerDef)
 end
 
 do
-    ---@return number
-    function TiledObjectGroupBase:id() return self.layerDef.id end
-
-    ---@return string
-    function TiledObjectGroupBase:name() return self.layerDef.name end
-
-    ---@return number
-    function TiledObjectGroupBase:offsetx() return self.layerDef.offsetx or 0 end
-
-    ---@return number
-    function TiledObjectGroupBase:offsety() return self.layerDef.offsety or 0 end
-
-    ---@return number
-    function TiledObjectGroupBase:parallaxx() return self.layerDef.parallaxx or 1 end
-
-    ---@return number
-    function TiledObjectGroupBase:parallaxy() return self.layerDef.parallaxy or 1 end
-
     function TiledObjectGroupBase:isTileLayer() return false end
     function TiledObjectGroupBase:isObjectGroup() return true end
     function TiledObjectGroupBase:isImageLayer() return false end
@@ -130,13 +167,9 @@ do
     function TiledObjectGroupBase:objects()
         return self.layerDef.objects
     end
-
-    function TiledObjectGroupBase:resolveProperty(name)
-        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
-    end
 end
 
----@class TiledImageLayer
+---@class TiledImageLayer: TiledLayerCommon
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledImageLayerBase = {}
@@ -151,31 +184,9 @@ function TiledImageLayer(tiledMap, layerDef)
 end
 
 do
-    ---@return number
-    function TiledImageLayerBase:id() return self.layerDef.id end
-
-    ---@return string
-    function TiledImageLayerBase:name() return self.layerDef.name end
-
-    ---@return number
-    function TiledImageLayerBase:offsetx() return self.layerDef.offsetx or 0 end
-
-    ---@return number
-    function TiledImageLayerBase:offsety() return self.layerDef.offsety or 0 end
-
-    ---@return number
-    function TiledImageLayerBase:parallaxx() return self.layerDef.parallaxx or 1 end
-
-    ---@return number
-    function TiledImageLayerBase:parallaxy() return self.layerDef.parallaxy or 1 end
-
     function TiledImageLayerBase:isTileLayer() return false end
     function TiledImageLayerBase:isObjectGroup() return false end
     function TiledImageLayerBase:isImageLayer() return true end
-
-    function TiledImageLayerBase:resolveProperty(name)
-        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
-    end
 end
 
 ---@alias TiledLayer TiledTileLayer|TiledObjectGroup|TiledImageLayer
@@ -183,7 +194,7 @@ end
 ---@class TiledTileset
 ---@field tiledMap TiledMap
 ---@field tilesetDef any
----@field quads love.Quad[]
+---@field private quads love.Quad[]
 local TiledTilesetBase = {}
 local TiledTilesetMT = {__index=TiledTilesetBase}
 
@@ -217,14 +228,25 @@ do
     ---@return number
     function TiledTilesetBase:firstgid() return self.tilesetDef.firstgid end
 
+    ---@return boolean
+    function TiledTilesetBase:containsGid(gid)
+        return gid >= self.tilesetDef.firstgid and gid < self.tilesetDef.firstgid + self.tilesetDef.tilecount
+    end
+
     ---@return string?
-    function TiledTilesetBase:image() return self.tilesetDef.image end
+    function TiledTilesetBase:class() return self.tilesetDef.class end
+
+    ---@return string?
+    function TiledTilesetBase:imagePath() return self.tilesetDef.image end
 
     ---@return number
     function TiledTilesetBase:tilewidth() return self.tilesetDef.tilewidth end
 
     ---@return number
     function TiledTilesetBase:tileheight() return self.tilesetDef.tileheight end
+
+    ---@return number
+    function TiledTilesetBase:tilecount() return self.tilesetDef.tilecount end
 
     ---@return any
     function TiledTilesetBase:tileData(gid)
@@ -306,6 +328,15 @@ function TiledMap(tmjPath, jsonLoader)
 end
 
 do
+    ---@return string?
+    function TiledMapBase:class() return self.tmj.class end
+
+    ---@return number
+    function TiledMapBase:tilewidth() return self.tmj.tilewidth end
+
+    ---@return number
+    function TiledMapBase:tileheight() return self.tmj.tileheight end
+
     ---Finds and returns a layer by name.
     ---@param name string The name of the layer
     ---@return TiledLayer?
