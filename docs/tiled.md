@@ -78,7 +78,7 @@ Loop through tiles in a tile layer and draw them:
 
             -- DRAW the tile.
             local quad = ts:quad(gid)
-            love.draw(image, quad, col * map:tilewidth(), row * map:tileheight())
+            love.graphics.draw(image, quad, col * map:tilewidth(), row * map:tileheight())
         end
     end
 ```

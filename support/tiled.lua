@@ -138,7 +138,8 @@ do
             end
 
             if y < maxy then
-                return x, y, self.layerDef.data[y*self.layerDef.width + x]
+                print("x: " .. x .. ", y: " .. y)
+                return x, y, self.layerDef.data[y*self.layerDef.width + x + 1]
             end
         end
     end
