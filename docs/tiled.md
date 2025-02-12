@@ -60,7 +60,7 @@ Loop through objects in a layer:
 
 Loop through tiles in a tile layer and draw them:
 
-```
+```lua
     assert(layer:isTileLayer())
     
     -- helps to avoid expensive calls to map:tilesetForGid() and string.match
