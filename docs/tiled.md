@@ -96,7 +96,7 @@ which you can use to access their properties.
 ```
 
 However, unwrapped structures like game objects need to use a method on the TiledMap
-called resolvePropertyRaw().
+called resolvePropertyOnPlain().
 
 ```lua
     local health = map:resolvePropertyOnPlain(player, "health")
