@@ -63,10 +63,9 @@ function AsepriteAnimPlayer:update(dt)
                 to = #self.asepriteSheet.data.frames
                 direction = "forward"
             end
-
-            -- (why was this line here? idk) if to > from then
             
             local oldFrame = self.frameIndex
+
             if direction == "forward" then
                 self.frameIndex = self.frameIndex + 1
                 if self.frameIndex > to then
@@ -106,11 +105,16 @@ function AsepriteAnimPlayer:update(dt)
             if self.loops > 0 and self.loopsDone == self.loops then
                 self.frameIndex = oldFrame
             end
-            --end
 
             self.frameTimer = self.asepriteSheet.data.frames[self.frameIndex].duration / 1000
         end
     end
+end
+
+---Returns whether the animation finished all its loops.
+---@return boolean
+function AsepriteAnimPlayer:finished()
+    return self.loops > 0 and self.loopsDone == self.loops
 end
 
 ---Calls love.graphics.draw(...) with the current visible animation frame.
