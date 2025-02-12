@@ -75,7 +75,7 @@ Loop through tiles in a tile layer and draw them:
 
         if not tileset or not tileset:containsGid(gid) then
             -- No it doesn't. Pull up the right tileset
-            tileset = tiledMap:tilesetForGid(gid)
+            tileset = map:tilesetForGid(gid)
 
             -- The image key is the image filename with no extension
             local imageKey = tileset:imagePath():match("([^\\/]+)%.png$")
@@ -101,4 +101,16 @@ called resolvePropertyOnPlain().
 ```lua
     local health = map:resolvePropertyOnPlain(player, "health")
     local strength = map:resolvePropertyOnPlain(map:objectById(5), "strength")
+```
+
+When iterating over tiles, you can also access their properties, but you need to
+use the tileset's tileData method first.
+
+```lua
+    for col, row, gid in layer:iterateTiles(0, 0, 5, 5) do
+        local tileset = map:tilesetForGid(gid)
+
+        local data = tileset:tileData(gid)
+        local solid = map:resolvePropertyOnPlain(data, "solid")
+    end
 ```
