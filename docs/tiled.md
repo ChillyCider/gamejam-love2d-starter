@@ -63,23 +63,28 @@ Loop through tiles in a tile layer and draw them:
 ```lua
     assert(layer:isTileLayer())
     
-    -- helps to avoid expensive calls to map:tilesetForGid() and string.match
-    local ts = nil
-    local image = nil
+    local tileset, image
+    local tileW = map:tilewidth()
+    local tileH = map:tileheight()
+    
+    -- A GID uniquely identifies a tile regardless of what tileset it is from
+    -- (i.e. "global tile ID")
 
-    -- loop through the tiles
     for col, row, gid in layer:iterateTiles(0, 0, 200, 100) do
-        if gid ~= 0 then
-            -- Reuse last tileset and image if it's the same
-            if not ts or not ts:containsGid(gid) then
-                ts = map:tilesetForGid(gid)
-                image = _G.images[ts:imagePath():match("([^\\/]+)%.png$")]
-            end
+        -- Does the last accessed tileset have this GID too?
 
-            -- DRAW the tile.
-            local quad = ts:quad(gid)
-            love.graphics.draw(image, quad, col * map:tilewidth(), row * map:tileheight())
+        if not tileset or not tileset:containsGid(gid) then
+            -- No it doesn't. Pull up the right tileset
+            tileset = tiledMap:tilesetForGid(gid)
+
+            -- The image key is the image filename with no extension
+            local imageKey = tileset:imagePath():match("([^\\/]+)%.png$")
+            image = _G.images[imageKey]
         end
+
+        -- Draw the tile
+        local quad = tileset:quad(gid)
+        love.graphics.draw(image, quad, col * tileW, row * tileH)
     end
 ```
 

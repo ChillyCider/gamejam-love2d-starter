@@ -131,14 +131,22 @@ do
         local x = minx - 1
         local y = miny
         return function()
-            x = x + 1
-            while x >= maxx and y < maxy do
-                x = minx
-                y = y + 1
-            end
+            local gid = 0
 
-            if y < maxy then
-                return x, y, self.layerDef.data[y*self.layerDef.width + x + 1]
+            while gid == 0 and y < maxy do
+                x = x + 1
+                while x >= maxx and y < maxy do
+                    x = minx
+                    y = y + 1
+                end
+
+                if y < maxy then
+                    gid = self.layerDef.data[y*self.layerDef.width + x + 1]
+                end
+            end
+            
+            if gid ~= 0 then
+                return x, y, gid
             end
         end
     end
