@@ -147,7 +147,7 @@ end
 ---@class TiledObjectGroup: TiledLayerCommon
 ---@field tiledMap TiledMap
 ---@field layerDef any
-local TiledObjectGroupBase = {}
+local TiledObjectGroupBase = setmetatable({}, TiledLayerCommonMT)
 local TiledObjectGroupMT = {__index=TiledObjectGroupBase}
 
 ---Returns a convenience wrapper around a TMJ object group.
@@ -172,7 +172,7 @@ end
 ---@class TiledImageLayer: TiledLayerCommon
 ---@field tiledMap TiledMap
 ---@field layerDef any
-local TiledImageLayerBase = {}
+local TiledImageLayerBase = setmetatable({}, TiledLayerCommonMT)
 local TiledImageLayerMT = {__index=TiledImageLayerBase}
 
 ---Returns a convenience wrapper around a TMJ object group.
