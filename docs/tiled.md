@@ -94,6 +94,6 @@ However, unwrapped structures like game objects need to use a method on the Tile
 called resolvePropertyRaw().
 
 ```lua
-    local health = map:resolvePropertyRaw(player, "health")
-    local strength = map:resolvePropertyRaw(map:objectById(5), "strength")
+    local health = map:resolvePropertyOnPlain(player, "health")
+    local strength = map:resolvePropertyOnPlain(map:objectById(5), "strength")
 ```
