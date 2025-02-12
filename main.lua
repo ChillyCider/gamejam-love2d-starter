@@ -1,6 +1,10 @@
+-- (c) 2025 Charlie Murphy
+-- This code is licensed under MIT license (see LICENSE.txt for details)
+
 local GS = require "hump.gamestate"
 local Timer = require "hump.timer"
 local AsepriteSheet = require "support.aseprite_sheet"
+local json = require "support.json"
 
 -- based on vrld's proxy
 local function Proxy(loadFunc)
@@ -21,7 +25,7 @@ _G.images = Proxy(function(k)
 end)
 ---@type table<string, AsepriteSheet>
 _G.sheets = Proxy(function(k)
-    return AsepriteSheet(_G.images[k], "assets/images/" .. k .. ".json")
+    return AsepriteSheet(_G.images[k], json.load("assets/images/" .. k .. ".json"))
 end)
 ---@type table<string, love.Font>
 _G.fonts = Proxy(function(k)
@@ -57,7 +61,4 @@ end
 
 function love.update(dt)
     Timer.update(dt)
-end
-
-function love.draw()
 end
