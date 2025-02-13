@@ -25,7 +25,7 @@ local function dirName(path)
     return d
 end
 
----@class TiledTileLayer: TiledLayerCommon
+---@class TiledTileLayer
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledTileLayerBase = setmetatable({}, TiledLayerCommonMT)
@@ -117,7 +117,7 @@ do
     end
 end
 
----@class TiledObjectGroup: TiledLayerCommon
+---@class TiledObjectGroup
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledObjectGroupBase = setmetatable({}, TiledLayerCommonMT)
@@ -141,7 +141,7 @@ do
     function TiledObjectGroupBase:isImageLayer() return false end
 end
 
----@class TiledImageLayer: TiledLayerCommon
+---@class TiledImageLayer
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledImageLayerBase = setmetatable({}, TiledLayerCommonMT)
