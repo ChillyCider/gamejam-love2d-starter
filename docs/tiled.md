@@ -89,18 +89,24 @@ Loop through tiles in a tile layer and draw them:
 ```
 
 Wrapped structures such as maps, tilesets, and layers have a :resolveProperty() method
-which you can use to access their properties.
+which you can use to access their properties. They also have methods to
+access regular fields.
 
 ```lua
     local corruption = layer:resolveProperty("corruption")
+    local class = layer:class()
+    local width = layer:width()
 ```
 
 However, unwrapped structures like game objects need to use a method on the TiledMap
-called resolvePropertyOnPlain().
+called resolvePropertyOnPlain(), or for non-properties, resolveFieldOnPlain().
+If you don't care about inheritance, you can access fields the normal way
+too.
 
 ```lua
     local health = map:resolvePropertyOnPlain(player, "health")
-    local strength = map:resolvePropertyOnPlain(map:objectById(5), "strength")
+    local type = map:resolveFieldOnPlain(player, "type")
+    local x = player.x
 ```
 
 When iterating over tiles, you can also access their properties, but you need to
