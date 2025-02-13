@@ -31,7 +31,7 @@ Now you can access a majority of the information associated with that Tiled map.
 For example, you can loop over all layers:
 
 ```lua
-    for _, layer in ipairs( map.layers ) do
+    for _, layer in ipairs(map.layers) do
         if layer:isObjectGroup() then
              -- blah
         end
@@ -49,10 +49,9 @@ Loop through objects in a layer:
 ```lua
     assert(layer:isObjectGroup())
 
-    for _, obj in ipairs( layer:objects() ) do
-         NOTE: obj is plain old data
-        if obj.type == "player" then
-             FOUND IT!
+    for _, obj in ipairs(layer.objects) do
+        -- NOTE: objects are plain old data / "unwrapped"
+        if map:resolveField(obj, "type") == "player" then
             print(obj.x .. " " .. obj.y)
         end
     end
@@ -64,8 +63,8 @@ Loop through tiles in a tile layer and draw them:
     assert(layer:isTileLayer())
     
     local tileset, image
-    local tileW = map:tilewidth()
-    local tileH = map:tileheight()
+    local tileW = map.tilewidth
+    local tileH = map.tileheight
     
     -- A GID uniquely identifies a tile regardless of what tileset it is from
     -- (i.e. "global tile ID")
@@ -78,7 +77,7 @@ Loop through tiles in a tile layer and draw them:
             tileset = map:tilesetForGid(gid)
 
             -- The image key is the image filename with no extension
-            local imageKey = tileset:imagePath():match("([^\\/]+)%.png$")
+            local imageKey = tileset.image:match("([^\\/]+)%.png$")
             image = _G.images[imageKey]
         end
 
@@ -88,24 +87,24 @@ Loop through tiles in a tile layer and draw them:
     end
 ```
 
-Wrapped structures such as maps, tilesets, and layers have a :resolveProperty() method
-which you can use to access their properties. They also have methods to
-access regular fields.
+Properties and fields can be resolved via a method on the map object. Try
+`map:resolveProperty(obj, propName)` or `map:resolveField(obj, fieldName)`.
+Fields can also be accessed directly if you don't care about inheritance.
 
 ```lua
-    local corruption = layer:resolveProperty("corruption")
-    local class = layer:class()
-    local width = layer:width()
+    local corruption = map:resolveProperty(layer, "corruption")
+    local class = map:resolveField(layer, "class")
+    local width = layer.width
 ```
 
-However, unwrapped structures like game objects need to use a method on the TiledMap
-called resolvePropertyOnPlain(), or for non-properties, resolveFieldOnPlain().
+Unwrapped structures like game objects need to leverage map methods like
+`resolvePropertyOnPlain()` or `resolveField()`.
 If you don't care about inheritance, you can access fields the normal way
 too.
 
 ```lua
-    local health = map:resolvePropertyOnPlain(player, "health")
-    local type = map:resolveFieldOnPlain(player, "type")
+    local health = map:resolveProperty(player, "health")
+    local type = map:resolveField(player, "type")
     local x = player.x
 ```
 

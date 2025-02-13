@@ -25,53 +25,15 @@ local function dirName(path)
     return d
 end
 
----@class TiledLayerCommon
----Stuff that is shared by all types of layers.
----
----@field tiledMap TiledMap
----@field layerDef any
-local TiledLayerCommon = {}
-local TiledLayerCommonMT = {__index=TiledLayerCommon}
-do
-    ---@return number
-    function TiledLayerCommon:id() return self.layerDef.id end
-
-    ---@return string
-    function TiledLayerCommon:name() return self.layerDef.name end
-
-    ---@return string?
-    function TiledLayerCommon:class() return self.layerDef.class end
-
-    ---@return number
-    function TiledLayerCommon:width() return self.layerDef.width end
-
-    ---@return number
-    function TiledLayerCommon:height() return self.layerDef.height end
-
-    ---@return number
-    function TiledLayerCommon:offsetx() return self.layerDef.offsetx or 0 end
-
-    ---@return number
-    function TiledLayerCommon:offsety() return self.layerDef.offsety or 0 end
-
-    ---@return number
-    function TiledLayerCommon:parallaxx() return self.layerDef.parallaxx or 1 end
-
-    ---@return number
-    function TiledLayerCommon:parallaxy() return self.layerDef.parallaxy or 1 end
-
-    ---@param name string
-    ---@return any
-    function TiledLayerCommon:resolveProperty(name)
-        return self.tiledMap:resolvePropertyOnPlain(self.layerDef, name)
-    end
-end
-
 ---@class TiledTileLayer: TiledLayerCommon
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledTileLayerBase = setmetatable({}, TiledLayerCommonMT)
-local TiledTileLayerMT = {__index=TiledTileLayerBase}
+local TiledTileLayerMT = {
+    __index=function(t, k)
+        return TiledTileLayerBase[k] or t.layerDef[k]
+    end
+}
 
 ---Returns a convenience wrapper around a TMJ tile layer.
 ---
@@ -159,7 +121,11 @@ end
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledObjectGroupBase = setmetatable({}, TiledLayerCommonMT)
-local TiledObjectGroupMT = {__index=TiledObjectGroupBase}
+local TiledObjectGroupMT = {
+    __index=function(t, k)
+        return TiledObjectGroupBase[k] or t.layerDef[k]
+    end
+}
 
 ---Returns a convenience wrapper around a TMJ object group.
 function TiledObjectGroup(tiledMap, layerDef)
@@ -173,18 +139,17 @@ do
     function TiledObjectGroupBase:isTileLayer() return false end
     function TiledObjectGroupBase:isObjectGroup() return true end
     function TiledObjectGroupBase:isImageLayer() return false end
-
-    ---@return any[]
-    function TiledObjectGroupBase:objects()
-        return self.layerDef.objects
-    end
 end
 
 ---@class TiledImageLayer: TiledLayerCommon
 ---@field tiledMap TiledMap
 ---@field layerDef any
 local TiledImageLayerBase = setmetatable({}, TiledLayerCommonMT)
-local TiledImageLayerMT = {__index=TiledImageLayerBase}
+local TiledImageLayerMT = {
+    __index=function(t, k)
+        return TiledImageLayerBase[k] or t.layerDef[k]
+    end
+}
 
 ---Returns a convenience wrapper around a TMJ object group.
 function TiledImageLayer(tiledMap, layerDef)
@@ -207,7 +172,11 @@ end
 ---@field tilesetDef any
 ---@field private quads love.Quad[]
 local TiledTilesetBase = {}
-local TiledTilesetMT = {__index=TiledTilesetBase}
+local TiledTilesetMT = {
+    __index=function(t, k)
+        return TiledTilesetBase[k] or t.tilesetDef[k]
+    end
+}
 
 ---@param tiledMap TiledMap
 ---@param tilesetDef any
@@ -236,28 +205,10 @@ function TiledTileset(tiledMap, tilesetDef)
 end
 
 do
-    ---@return number
-    function TiledTilesetBase:firstgid() return self.tilesetDef.firstgid end
-
     ---@return boolean
     function TiledTilesetBase:containsGid(gid)
         return gid >= self.tilesetDef.firstgid and gid < self.tilesetDef.firstgid + self.tilesetDef.tilecount
     end
-
-    ---@return string?
-    function TiledTilesetBase:class() return self.tilesetDef.class end
-
-    ---@return string?
-    function TiledTilesetBase:imagePath() return self.tilesetDef.image end
-
-    ---@return number
-    function TiledTilesetBase:tilewidth() return self.tilesetDef.tilewidth end
-
-    ---@return number
-    function TiledTilesetBase:tileheight() return self.tilesetDef.tileheight end
-
-    ---@return number
-    function TiledTilesetBase:tilecount() return self.tilesetDef.tilecount end
 
     ---@return any
     function TiledTilesetBase:tileData(gid)
@@ -277,10 +228,6 @@ do
         local internalId = gid - self.tilesetDef.firstgid
         return self.quads[internalId + 1]
     end
-
-    function TiledTilesetBase:resolveProperty(name)
-        return self.tiledMap:resolvePropertyOnPlain(self.tilesetDef, name)
-    end
 end
 
 ---@class TiledMap
@@ -288,7 +235,11 @@ end
 ---@field tilesets TiledTileset[]objDef
 ---@field tmj any
 local TiledMapBase = {}
-local TiledMapMT = {__index=TiledMapBase}
+local TiledMapMT = {
+    __index=function(t, k)
+        return TiledMapBase[k] or t.tmj[k]
+    end
+}
 
 ---@param tmjPath string The path to the TMJ file, used for resolving tileset paths
 ---@param jsonLoader fun(path:string):any A JSON loader
@@ -339,15 +290,6 @@ function TiledMap(tmjPath, jsonLoader)
 end
 
 do
-    ---@return string?
-    function TiledMapBase:class() return self.tmj.class end
-
-    ---@return number
-    function TiledMapBase:tilewidth() return self.tmj.tilewidth end
-
-    ---@return number
-    function TiledMapBase:tileheight() return self.tmj.tileheight end
-
     ---Finds and returns a layer by name.
     ---@param name string The name of the layer
     ---@return TiledLayer?
@@ -381,15 +323,15 @@ do
         end
     end
     
-    function TiledMapBase:resolveFieldOnPlain(def, name)
-        if def[name] and def[name] ~= "" then
-            return def[name]
+    function TiledMapBase:resolveField(obj, name)
+        if obj[name] and obj[name] ~= "" then
+            return obj[name]
         end
         
-        if def.gid then
-            local tileset = self:tilesetForGid(def.gid)
+        if obj.gid then
+            local tileset = self:tilesetForGid(obj.gid)
             if tileset then
-                local tileData = tileset:tileData(def.gid)
+                local tileData = tileset:tileData(obj.gid)
                 if tileData and tileData[name] and tileData[name] ~= "" then
                     return tileData[name]
                 end
@@ -399,8 +341,8 @@ do
         return nil
     end
 
-    function TiledMapBase:resolvePropertyOnPlain(def, name)
-        for _,p in ipairs(def.properties or {}) do
+    function TiledMapBase:resolveProperty(obj, name)
+        for _,p in ipairs(obj.properties or {}) do
             if p.name == name then
                 if p.type == "string" or p.type == "int" or p.type == "bool" or p.type == "float" or p.type == "file" then
                     return p.value
@@ -411,19 +353,15 @@ do
         end
 
         -- If the item inherits from a tile, look up the property there
-        if def.gid then
-            local tileset = self:tilesetForGid(def.gid)
+        if obj.gid then
+            local tileset = self:tilesetForGid(obj.gid)
             if tileset then
-                local tileData = tileset:tileData(def.gid)
+                local tileData = tileset:tileData(obj.gid)
                 if tileData then
                     return self:resolvePropertyOnPlain(tileData, name)
                 end
             end
         end
-    end
-
-    function TiledMapBase:resolveProperty(name)
-        return self:resolvePropertyOnPlain(self.tmj, name)
     end
 
     function TiledMapBase:tilesetForGid(gid)
