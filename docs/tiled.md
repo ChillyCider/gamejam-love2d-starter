@@ -50,7 +50,6 @@ Loop through objects in a layer:
     assert(layer:isObjectGroup())
 
     for _, obj in ipairs(layer.objects) do
-        -- NOTE: objects are plain old data / "unwrapped"
         if map:resolveField(obj, "type") == "player" then
             print(obj.x .. " " .. obj.y)
         end
@@ -87,22 +86,21 @@ Loop through tiles in a tile layer and draw them:
     end
 ```
 
-Properties and fields can be resolved via a method on the map object. Try
-`map:resolveProperty(obj, propName)` or `map:resolveField(obj, fieldName)`.
-Fields can also be accessed directly if you don't care about inheritance.
+In Tiled's map format, there's a distinction between "properties" added by
+the user and builtin properties of objects. For clarity, our api refers to
+the builtin properties as "fields".
+
+Properties and fields can be resolved (obeying inheritance) via a method
+on the map object. Try `map:resolveProperty(obj, propName)` or
+`map:resolveField(obj, fieldName)`. Fields can also be accessed directly
+if you don't care about inheritance.
 
 ```lua
     local corruption = map:resolveProperty(layer, "corruption")
     local class = map:resolveField(layer, "class")
     local width = layer.width
-```
 
-Unwrapped structures like game objects need to leverage map methods like
-`resolvePropertyOnPlain()` or `resolveField()`.
-If you don't care about inheritance, you can access fields the normal way
-too.
-
-```lua
+    -- Example for game objects
     local health = map:resolveProperty(player, "health")
     local type = map:resolveField(player, "type")
     local x = player.x
@@ -116,6 +114,6 @@ use the tileset's tileData method first.
         local tileset = map:tilesetForGid(gid)
 
         local data = tileset:tileData(gid)
-        local solid = map:resolvePropertyOnPlain(data, "solid")
+        local solid = map:resolveProperty(data, "solid")
     end
 ```
