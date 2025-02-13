@@ -380,6 +380,24 @@ do
             end
         end
     end
+    
+    function TiledMapBase:resolveFieldOnPlain(def, name)
+        if def[name] and def[name] ~= "" then
+            return def[name]
+        end
+        
+        if def.gid then
+            local tileset = self:tilesetForGid(def.gid)
+            if tileset then
+                local tileData = tileset:tileData(def.gid)
+                if tileData and tileData[name] and tileData[name] ~= "" then
+                    return tileData[name]
+                end
+            end
+        end
+
+        return nil
+    end
 
     function TiledMapBase:resolvePropertyOnPlain(def, name)
         for _,p in ipairs(def.properties or {}) do
