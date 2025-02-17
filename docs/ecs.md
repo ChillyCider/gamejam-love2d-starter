@@ -18,14 +18,14 @@ function love.draw()
 end
 ```
 
-For convenience, you can load all your systems from a directory. Note this
-also checks the save directory, which means users are able to inject their
-own systems, whether you want that or not. (I'm not sure how to avoid that.)
+For convenience, you can load all your systems from a directory.
 
 ```lua
+-- is insecure since it also checks the save directory
+
 world:registerSystemsFromDir("systems")
 
--- or, for more security, manually add each system like this
+-- for more security, manually add each system like this
 
 world:registerSystems {
     require "systems.physics",
@@ -43,27 +43,12 @@ local e = {
 }
 ```
 
-But "pos" like that for all created entities is error prone.
-So, it is better to use world:add(), which lets you pass it table of constructed
-components. (This means that any error with naming happens at construct time and only
-there, not somewhere down the line.) An example:
+But writing components like that for all created entities is error prone, and such
+errors would not be detected until later access. So, it is better to use world:add(),
+which lets you pass a table of constructed components. (This means that errors happen
+at construct time and only there, not somewhere down the line.) An example:
 
 ```lua
-local Pos = require "com.Pos"
-local Sprite = require "com.Sprite"
-
-world:add {
-    Pos(0, 0),
-    Sprite(myImage),
-}
-```
-
-Autoloading: the `com` folder has an init.lua set up with autoloading. That means you can
-require "com" and then access all component types from there. HOWEVER, if you want LuaLS
-type completion, be sure to go into init.lua and put an explicit require in there.
-
-```lua
-local util = require "util"
 local com = require "com"
 
 world:add {
@@ -73,28 +58,37 @@ world:add {
 ```
 
 Component definitions: A component is just a Lua table. But, it must have a `comName` field
-that world:add() can understand. Here is a full example definition of com.Pos which you can
-use as a template for any component you can think of.
+that world:add() can understand. `comName` will be used as the key in the actual raw entity.
+Here is a full example definition of com.Pos which you can use as a template for almost any
+component you can think of.
 
 ```lua
--- example contents of com/Pos.lua
+---@class com.Pos
+---@field x number
+---@field y number
 local Pos = {comName="pos"}
-local PosMT = {__index=Pos} -- enables instances to read comName
+local MT = {__index=Pos}
 
-return function(x, y)
+local function constructor(x, y)
     return setmetatable({
         x=x or 0,
         y=y or 0,
-    }, PosMT)
+    }, MT)
 end
+
+---@overload fun(x:number?, y:number?):com.Pos
+return setmetatable(Pos, {__call=function(t, ...)
+    return constructor(...)
+end})
 ```
 
-If you 
-
-System definitions: Here is just an example.
+System definitions: Check in `systems/`, but here is just an example.
 
 ```lua
-return require("ecs").System {
+-- A possible systems/example.lua
+local ecs = require "ecs"
+
+return ecs.System {
     -- Systems with a lower priority number will run first
     priority=0,
     

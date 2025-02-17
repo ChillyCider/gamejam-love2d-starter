@@ -1,12 +1,12 @@
 ---@class com.Sprite
 ---@field image love.Image?
 local Sprite = {comName="sprite"}
-local SpriteMT = {__index=Sprite}
+local MT = {__index=Sprite}
 
 local function constructor(image)
     return setmetatable({
         image=image,
-    }, SpriteMT)
+    }, MT)
 end
 
 ---@overload fun(image:love.Image?):com.Sprite
