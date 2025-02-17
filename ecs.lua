@@ -102,6 +102,35 @@ function WorldClass:unregisterSystems(systems)
     end
 end
 
+---Iterates over all entities with the requested components.
+---@param ... string
+---@return function
+function WorldClass:entitiesWith(...)
+    local i = 0
+    local filter = {...}
+    local entities = self.entities
+    local lastIndex = #self.entities
+    return function()
+        while i < lastIndex do
+            i = i + 1
+
+            local ent = entities[i]
+            local matches = true
+
+            for _, component in ipairs(filter) do
+                if not ent[component] then
+                    matches = false
+                    break
+                end
+            end
+
+            if matches then
+                return ent
+            end
+        end
+    end
+end
+
 ---@param dt number
 function WorldClass:update(dt)
     for _, us in ipairs(self.updateSystems) do
@@ -111,8 +140,8 @@ function WorldClass:update(dt)
             for _, ent in ipairs(self.entities) do
                 local matches = true
 
-                if us.requires then
-                    for _, component in ipairs(us.requires or {}) do
+                if us.filter then
+                    for _, component in ipairs(us.filter or {}) do
                         if not ent[component] then
                             matches = false
                             break
@@ -138,8 +167,8 @@ function WorldClass:draw()
             for _, ent in ipairs(self.entities) do
                 local matches = true
 
-                if ds.requires then
-                    for _, component in ipairs(ds.requires) do
+                if ds.filter then
+                    for _, component in ipairs(ds.filter) do
                         if not ent[component] then
                             matches = false
                             break
