@@ -7,6 +7,14 @@ local world = ecs.World():registerSystemsFromDir("systems")
 local example = {}
 
 function example:enter()
+    world:add {
+        ecs.com.pos(100, 100),
+        ecs.com.sprite(_G.images.mantis),
+    }
+    world:add {
+        ecs.com.pos(120, 130),
+        ecs.com.sprite(_G.images.mantis),
+    }
 end
 
 function example:leave()

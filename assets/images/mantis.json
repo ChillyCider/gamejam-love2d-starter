@@ -1,0 +1,41 @@
+{ "frames": [
+   {
+    "filename": "mantis 0.ase",
+    "frame": { "x": 0, "y": 0, "w": 96, "h": 96 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 96 },
+    "sourceSize": { "w": 96, "h": 96 },
+    "duration": 400
+   },
+   {
+    "filename": "mantis 1.ase",
+    "frame": { "x": 96, "y": 0, "w": 96, "h": 96 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 96 },
+    "sourceSize": { "w": 96, "h": 96 },
+    "duration": 400
+   },
+   {
+    "filename": "mantis 2.ase",
+    "frame": { "x": 0, "y": 96, "w": 96, "h": 96 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 96 },
+    "sourceSize": { "w": 96, "h": 96 },
+    "duration": 400
+   }
+ ],
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/charlie/Projects/love-kate-template/assets/images/mantis.png",
+  "format": "RGBA8888",
+  "size": { "w": 192, "h": 192 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "Loop", "from": 0, "to": 2, "direction": "pingpong" }
+  ]
+ }
+}

@@ -1,3 +1,10 @@
+---@alias ecs.Entity table<string, any>
+
+local com = setmetatable({}, {__index=function(t, k)
+    rawset(t, k, require("com." .. k))
+    return t[k]
+end})
+
 ---@class ecs.System
 local SystemClass = {}
 local SystemMT = {__index=SystemClass}
@@ -29,10 +36,19 @@ local function World()
     }, WorldMT)
 end
 
----@param entity table
-function WorldClass:add(entity)
-    table.insert(self.entities, entity)
-    return self
+---@param components table
+---@return ecs.Entity
+function WorldClass:add(components)
+    local e = {}
+    for k, v in pairs(components) do
+        if type(k) == "number" then
+            e[v.comName] = v
+        else
+            e[k] = v
+        end
+    end
+    table.insert(self.entities, e)
+    return e
 end
 
 function WorldClass:wipe()
@@ -205,5 +221,6 @@ end
 
 return {
     System=System,
-    World=World
+    World=World,
+    com=com,
 }
