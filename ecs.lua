@@ -1,10 +1,5 @@
 ---@alias ecs.Entity table<string, any>
 
-local com = setmetatable({}, {__index=function(t, k)
-    rawset(t, k, require("com." .. k))
-    return t[k]
-end})
-
 ---@class ecs.System
 local SystemClass = {}
 local SystemMT = {__index=SystemClass}
@@ -222,5 +217,4 @@ end
 return {
     System=System,
     World=World,
-    com=com,
 }

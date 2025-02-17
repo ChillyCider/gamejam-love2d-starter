@@ -1,3 +1,10 @@
+function autoLoader(moduleBase)
+    return setmetatable({}, {__index=function(t, k)
+        rawset(t, k, require(moduleBase .. "." .. k))
+        return t[k]
+    end})
+end
+
 ---Find the first item in an array that matches a table.
 ---
 ---@param array any[] The array to search.
@@ -115,6 +122,7 @@ local function lerpAngle(a, b, progress)
 end
 
 return {
+    autoLoader=autoLoader,
     findTableMatch=findTableMatch,
     findPredMatch=findPredMatch,
     distance=distance,

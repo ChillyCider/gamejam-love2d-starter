@@ -1,4 +1,6 @@
-local Pos = require "com.pos"
+-- Include definitions for Pos and Sprite
+---@module com.Pos
+---@module com.Sprite
 
 return require("ecs").System {
     priority=0,

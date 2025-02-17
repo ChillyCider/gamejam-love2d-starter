@@ -2,18 +2,20 @@
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
 local ecs = require "ecs"
+local util = require "util"
+local com = util.autoLoader("com")
 local world = ecs.World():registerSystemsFromDir("systems")
 
 local example = {}
 
 function example:enter()
     world:add {
-        ecs.com.pos(100, 100),
-        ecs.com.sprite(_G.images.mantis),
+        com.Pos(100, 100),
+        com.Sprite(_G.images.mantis),
     }
     world:add {
-        ecs.com.pos(120, 130),
-        ecs.com.sprite(_G.images.mantis),
+        com.Pos(120, 130),
+        com.Sprite(_G.images.mantis),
     }
 end
 
