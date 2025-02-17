@@ -1,6 +1,6 @@
 ---@class Sprite
 ---@field image love.Image?
-local Sprite = {comName="sprite", comTypeName="Sprite"}
+local Sprite = {comName="sprite"}
 local SpriteMT = {__index=Sprite}
 
 local function constructor(image)

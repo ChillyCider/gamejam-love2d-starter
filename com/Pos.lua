@@ -1,7 +1,7 @@
 ---@class Pos
 ---@field x number
 ---@field y number
-local Pos = {comName="pos", comTypeName="Pos"}
+local Pos = {comName="pos"}
 local PosMT = {__index=Pos}
 
 local function constructor(x, y)
