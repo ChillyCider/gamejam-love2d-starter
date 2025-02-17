@@ -113,3 +113,19 @@ return require("ecs").System {
     end,
 }
 ```
+
+Systems can send messages to each other.
+
+```lua
+return require("ecs").System {
+    update=function(self, world, ent, dt)
+        world:notify("blah", 1, 2, 3)
+    end,
+    
+    notify=function(self, msg, ...)
+        if msg == "blah" then
+            print("blah received")
+        end
+    end,
+}
+```
