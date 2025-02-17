@@ -15,6 +15,7 @@ end
 ---@field entitiesToRemove table<table, boolean>
 ---@field updateSystems System[]
 ---@field drawSystems System[]
+---@field systems System[]
 local WorldClass = {}
 local WorldMT = {__index=WorldClass}
 
@@ -24,6 +25,7 @@ local function World()
         entitiesToRemove={},
         updateSystems={},
         drawSystems={},
+        notifySystems={},
     }, WorldMT)
 end
 
@@ -66,6 +68,11 @@ function WorldClass:registerSystems(systems)
             table.insert(self.drawSystems, sys)
             table.sort(self.drawSystems, systemSortComparison)
         end
+
+        if sys.notify then
+            table.insert(self.notifySystems, sys)
+            table.sort(self.notifySystems, systemSortComparison)
+        end
     end
 
     return self
@@ -99,6 +106,12 @@ function WorldClass:unregisterSystems(systems)
                 table.remove(self.drawSystems, i)
             end
         end
+
+        for i=#self.notifySystems,1,-1 do
+            if sys == self.notifySystems[i] then
+                table.remove(self.notifySystems, i)
+            end
+        end
     end
 end
 
@@ -128,6 +141,12 @@ function WorldClass:entitiesWith(...)
                 return ent
             end
         end
+    end
+end
+
+function WorldClass:notify(...)
+    for _, sys in ipairs(self.notifySystems) do
+        sys:notify(...)
     end
 end
 
