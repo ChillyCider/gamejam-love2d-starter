@@ -58,13 +58,13 @@ world:add {
 }
 ```
 
-Autoloading: there's a handy function in `util.lua` called autoLoader which can make components
-more convenient at the cost of losing type information (from LuaLS annotations). The example
-should be sufficient documentation:
+Autoloading: the `com` folder has an init.lua set up with autoloading. That means you can
+require "com" and then access all component types from there. HOWEVER, if you want LuaLS
+type completion, be sure to go into init.lua and put an explicit require in there.
 
 ```lua
 local util = require "util"
-local com = util.autoLoader "com"
+local com = require "com"
 
 world:add {
     com.Pos(0, 0),
@@ -88,6 +88,8 @@ return function(x, y)
     }, PosMT)
 end
 ```
+
+If you 
 
 System definitions: Here is just an example.
 
