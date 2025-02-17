@@ -1,6 +1,6 @@
 return setmetatable({
-    Pos=require "Pos",
-    Sprite=require "Sprite",
+    Pos=require "com.Pos",
+    Sprite=require "com.Sprite",
 }, {__index=function(t, name)
     local m = require(name)
     rawset(t, name, m)
