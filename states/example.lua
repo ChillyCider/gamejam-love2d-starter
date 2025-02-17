@@ -2,8 +2,8 @@
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
 local ecs = require "ecs"
+local com = require "com"
 local util = require "util"
-local com = util.autoLoader("com")
 local world = ecs.World():registerSystemsFromDir("systems")
 
 local example = {}

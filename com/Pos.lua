@@ -1,4 +1,4 @@
----@class Pos
+---@class com.Pos
 ---@field x number
 ---@field y number
 local Pos = {comName="pos"}
@@ -11,7 +11,7 @@ local function constructor(x, y)
     }, PosMT)
 end
 
----@overload fun(x:number?, y:number?):Pos
+---@overload fun(x:number?, y:number?):com.Pos
 return setmetatable(Pos, {__call=function(t, ...)
     return constructor(...)
 end})
