@@ -75,9 +75,9 @@ end
 function WorldClass:registerSystemsFromDir(dir)
     local systems = {}
 
-    for _, fname in love.filesystem.getDirectoryItems(dir) do
+    for _, fname in ipairs(love.filesystem.getDirectoryItems(dir)) do
         if fname:match("%.lua$") then
-            table.insert(systems, assert(love.filesystem.load(fname))())
+            table.insert(systems, assert(love.filesystem.load(dir .. "/" .. fname))())
         end
     end
 
