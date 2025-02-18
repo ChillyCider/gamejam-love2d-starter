@@ -1,3 +1,6 @@
+-- (c) 2025 Charlie Murphy
+-- This code is licensed under MIT license (see LICENSE.txt for details)
+
 ---Find the first item in an array that matches a table.
 ---
 ---@param array any[] The array to search.
