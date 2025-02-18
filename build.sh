@@ -19,7 +19,7 @@ echo "Game title detected in conf.lua as $GAME_TITLE"
 folder="$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")"
 trap "rm -rf $folder" EXIT
 
-zip -q -r "$folder/game.love" assets/ states/ support/ systems/ com/ conf.lua main.lua util.lua ecs.lua LICENSE.txt
+zip -q -r "$folder/game.love" assets/ states/ support/ systems/ com/ util/ conf.lua main.lua ecs.lua LICENSE.txt
 
 if [ "x$BUILD_TYPE" = "xweb" ]; then
     npx love.js -c "$folder/game.love" -t "$GAME_TITLE" "$OUTPUT_DIR"
