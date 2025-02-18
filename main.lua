@@ -3,6 +3,7 @@
 
 local AsepriteSheet = require "support.aseprite_sheet"
 local json = require "support.json"
+local util = require "util"
 
 -- based on vrld's proxy
 local function Proxy(loadFunc)
@@ -73,6 +74,7 @@ function love.load()
 end
 
 function love.update(dt)
+    util.Timers:update(dt)
     if state and state.update then state:update(dt) end
 end
 
