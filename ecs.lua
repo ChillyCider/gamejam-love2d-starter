@@ -1,4 +1,22 @@
 ---@alias ecs.Entity table<string, any>
+local EntityClass = {}
+local EntityMT = {__index=EntityClass}
+
+local function Entity(components)
+    return setmetatable({}, EntityMT):add(components)
+end
+
+function EntityClass:add(components)
+    for k, v in pairs(components) do
+        if type(k) == "number" then
+            self[v.comName] = v
+        else
+            self[k] = v
+        end
+    end
+
+    return self
+end
 
 ---@class ecs.System
 local SystemClass = {}
@@ -34,14 +52,7 @@ end
 ---@param components table
 ---@return ecs.Entity
 function WorldClass:add(components)
-    local e = {}
-    for k, v in pairs(components) do
-        if type(k) == "number" then
-            e[v.comName] = v
-        else
-            e[k] = v
-        end
-    end
+    local e = Entity(components)
     table.insert(self.entities, e)
     return e
 end
