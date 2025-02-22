@@ -2,7 +2,10 @@
     "workspace.library": [
         "${addons}/love2d/module/library"
     ],
-    "runtime.version": "LuaJIT",
+    "runtime.version": "Lua 5.3",
+    "runtime.builtin": {
+        "utf8": "enable"
+    },
     "runtime.special": {
         "love.filesystem.load": "loadfile"
     },
