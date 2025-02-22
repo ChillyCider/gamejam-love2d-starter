@@ -1,13 +1,13 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
----@class Sprite
+---@module 'GameObject'
+
+---@class Sprite: GameObject
 ---@field x number
 ---@field y number
 ---@field w number
 ---@field h number
----@field visible boolean
----@field active boolean
 ---@field rotation number
 ---@field scaleX number
 ---@field scaleY number
@@ -17,6 +17,9 @@
 ---@field animPlayer support.AsepriteAnimPlayer?
 ---@field drawMode "img"|"anim"
 local Sprite = {}
+
+function Sprite:destroy()
+end
 
 function Sprite:update(dt)
     if self.drawMode == "anim" then self.animPlayer:update(dt) end

@@ -1,10 +1,10 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
----@class Group
----@field visible boolean
----@field active boolean
----@field members Sprite[]
+---@module 'GameObject'
+
+---@class Group: GameObject
+---@field members GameObject[]
 local Group = {}
 
 function Group:new()
@@ -12,15 +12,21 @@ function Group:new()
     return setmetatable({visible=true, active=true, members={}}, self)
 end
 
----@param sprite Sprite
-function Group:add(sprite)
-    table.insert(self.members, sprite)
+function Group:destroy()
+    for _, memb in pairs(self.members) do
+        memb:destroy()
+    end
 end
 
----@param sprite Sprite
-function Group:remove(sprite)
-    for i, memb in ipairs(self.members) do
-        if memb == sprite then
+---@param obj GameObject
+function Group:add(obj)
+    table.insert(self.members, obj)
+end
+
+---@param obj GameObject
+function Group:remove(obj)
+    for i, memb in pairs(self.members) do
+        if memb == obj then
             table.remove(self.members, i)
             break
         end
