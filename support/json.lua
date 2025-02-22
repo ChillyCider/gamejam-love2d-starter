@@ -28,9 +28,9 @@ local HEX = {
 local function parseStringLiteral(s, len, pos)
     local originalPos = pos
     pos = pos + 1
-    
+
     local result = ""
-    
+
     local escape = false
     local finished = false
     while not finished and pos <= len do
@@ -57,21 +57,21 @@ local function parseStringLiteral(s, len, pos)
                 if pos + 4 > len then
                     error("Incomplete hex glyph in JSON string")
                 end
-                
+
                 local p1 = HEX[s:sub(pos + 1, pos + 1):lower()]
                 local p2 = HEX[s:sub(pos + 2, pos + 2):lower()]
                 local p3 = HEX[s:sub(pos + 3, pos + 3):lower()]
                 local p4 = HEX[s:sub(pos + 4, pos + 4):lower()]
-                
+
                 if p1 == nil or p2 == nil or p3 == nil or p4 == nil then
                     error("Invalid hexadecimal number in JSON string")
                 end
-                
+
                 result = result .. utf8.char(4096*p1 + 256*p2 + 16*p3 + p4)
-                
+
                 pos = pos + 4
             end
-            
+
             pos = pos + 1
             escape = false
         else
@@ -82,15 +82,15 @@ local function parseStringLiteral(s, len, pos)
             else
                 result = result .. c
             end
-            
+
             pos = pos + 1
         end
     end
-    
+
     if not finished then
         error("Incomplete string literal in JSON")
     end
-    
+
     return result, (pos - originalPos)
 end
 
@@ -99,15 +99,15 @@ end
 ---@param pos number
 local function parseNumberLiteral(s, len, pos)
     local originalPos = pos
-    
+
     if s:sub(pos, pos) == '-' then
         pos = pos + 1
     end
-    
+
     while pos <= len and string.find("0123456789", s:sub(pos, pos), 1, true) do
         pos = pos + 1
     end
-    
+
     if pos <= len and s:sub(pos, pos) == "." then
         pos = pos + 1
         local fracPartFound = false
@@ -115,31 +115,31 @@ local function parseNumberLiteral(s, len, pos)
             pos = pos + 1
             fracPartFound = true
         end
-        
+
         if not fracPartFound then
             error("Number with decimal point but no fractional part in JSON")
         end
     end
-    
+
     if pos <= len and s:sub(pos, pos):lower() == "e" then
         pos = pos + 1
-    
+
         if pos <= len and s:sub(pos, pos) == '+' or s:sub(pos, pos) == '-' then
             pos = pos + 1
         end
-        
+
         local expPartFound = false
-        
+
         while pos <= len and string.find("0123456789", s:sub(pos, pos), 1, true) do 
             pos = pos + 1
             expPartFound = true
         end
-        
+
         if not expPartFound then
             error("Number with 'e' but no following exponent in JSON")
         end
     end
-    
+
     return tonumber(s:sub(originalPos, pos - 1)), pos - originalPos
 end
 
@@ -156,12 +156,8 @@ end
 local Tokenizer = {}
 Tokenizer.__index = Tokenizer
 
----@param s string
----@return Tokenizer
 function Tokenizer.new()
-    local o = {}
-    setmetatable(o, Tokenizer)
-    return o
+    return setmetatable({}, Tokenizer)
 end
 
 function Tokenizer:init(s)
@@ -183,7 +179,7 @@ function Tokenizer:advance()
     local c = nil
     if self.cursor <= self.len then
         c = self.s:sub(self.cursor, self.cursor)
-        
+
         while c == " " or c == "\n" or c == "\r" or c == "\t" do
             self.cursor = self.cursor + 1
             if self.cursor <= self.len then
@@ -193,7 +189,7 @@ function Tokenizer:advance()
             end
         end
     end
-    
+
     if c == '"' then
         -- string
         local _, skip = parseStringLiteral(self.s, self.len, self.cursor)
@@ -227,12 +223,12 @@ function Tokenizer:advance()
     elseif c == 'n' or c == 't' or c == 'f' then
         -- could be null, true, or false
         local origCursor = self.cursor
-        
+
         self.cursor = self.cursor + 1
         while self.cursor <= self.len and string.find("nulfasetr", self.s:sub(self.cursor, self.cursor), 1, true) do
             self.cursor = self.cursor + 1
         end
-        
+
         if self.s:sub(origCursor, self.cursor - 1) == "null" then
             self.nextPosition = origCursor
             self.nextTokenType = "null"
@@ -265,7 +261,7 @@ local parseValue
 local function parseArray(t)
     t:advance()
     local items = {}
-    
+
     while t.tokenType ~= "rbracket" and t.tokenType ~= "eof" do
         local value = parseValue(t)
         if t.tokenType == "comma" then
@@ -273,57 +269,57 @@ local function parseArray(t)
         elseif t.tokenType ~= "rbracket" then
             error("Unexpected " .. t.tokenType .. " token in array in JSON")
         end
-        
+
         table.insert(items, value)
     end
-    
+
     if t.tokenType == "rbracket" then
         t:advance()
     elseif t.tokenType == "eof" then
         error("Incomplete array in JSON")
     end
-    
+
     return items
 end
 
 ---@param t Tokenizer
 local function parseObject(t)
     t:advance()
-    
+
     local obj = {}
-    
+
     while t.tokenType ~= "rbrace" and t.tokenType ~= "eof" do
         if t.tokenType ~= "string" then
             error("Key must be string in JSON object")
         end
-        
+
         local key = parseStringLiteral(t.s, t.len, t.tokenPos)
-        
+
         t:advance()
-        
+
         if t.tokenType ~= "colon" then
             error("Colon expected in JSON object")
         end
-        
+
         t:advance()
-        
+
         local value = parseValue(t)
-        
+
         if t.tokenType == "comma" then
             t:advance()
         elseif t.tokenType ~= "rbrace" then
             error("Unexpected " .. t.tokentype .. " token in JSON object")
         end
-        
+
         obj[key] = value
     end
-    
+
     if t.tokenType == "rbrace" then
         t:advance()
     elseif t.tokenType == "eof" then
         error("Incomplete object in JSON")
     end
-    
+
     return obj
 end
 
@@ -351,7 +347,7 @@ parseValue = function(t)
         t:advance()
         return nil
     end
-    
+
     error(t.tokenType .. " is not a valid value token for JSON")
 end
 
