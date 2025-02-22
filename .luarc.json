@@ -15,6 +15,7 @@
     "completion.callSnippet": "Disable",
     "diagnostics.disable": [
         "undefined-field",
-        "empty-block"
+        "empty-block",
+        "lowercase-global"
     ]
 }
