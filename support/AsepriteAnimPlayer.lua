@@ -14,16 +14,22 @@ local MT = {__index=AsepriteAnimPlayer}
 ---@param loops number? Number of times to play the animation, or 0 or nil to loop forever.
 ---@param forceRestart boolean? Whether to restart the animation if it is already playing.
 function AsepriteAnimPlayer:play(asepriteSheet, tagName, loops, forceRestart)
+    if self.asepriteSheet ~= asepriteSheet then
+        self.asepriteSheet = asepriteSheet
+        forceRestart = true
+    end
+
+    self:playTag(tagName, loops, forceRestart)
+end
+
+function AsepriteAnimPlayer:playTag(tagName, loops, forceRestart)
     self.paused = false
     self.loops = loops or 0
     self.loopsDone = 0
-    self.speedFactor = 1
 
-    if self.asepriteSheet ~= asepriteSheet or self.tagName ~= tagName or forceRestart then
-        self.asepriteSheet = asepriteSheet
-
+    if self.tagName ~= tagName or forceRestart then
         if tagName then
-            local tag = asepriteSheet:tag(tagName)
+            local tag = self.asepriteSheet:tag(tagName)
             if tag then
                 self.tagName = tagName
 
@@ -45,7 +51,7 @@ function AsepriteAnimPlayer:play(asepriteSheet, tagName, loops, forceRestart)
             self.frameIndex = 1
         end
 
-        self.frameTimer = asepriteSheet.data.frames[self.frameIndex].duration / 1000
+        self.frameTimer = self.asepriteSheet.data.frames[self.frameIndex].duration / 1000
     end
 end
 
@@ -53,7 +59,7 @@ end
 ---
 ---@param dt number Number of seconds.
 function AsepriteAnimPlayer:update(dt)
-    if not paused and (self.loops <= 0 or self.loopsDone < self.loops) then
+    if not self.paused and (self.loops <= 0 or self.loopsDone < self.loops) then
         local from, to, direction
 
         local tag = nil
@@ -73,7 +79,7 @@ function AsepriteAnimPlayer:update(dt)
 
         self.frameTimer = self.frameTimer - dt*self.speedFactor
 
-        while self.frameTimer <= 0.0 and not paused and (self.loops <= 0 or self.loopsDone < self.loops) do
+        while self.frameTimer <= 0.0 and not self.paused and (self.loops <= 0 or self.loopsDone < self.loops) do
             local oldFrame = self.frameIndex
 
             if direction == "forward" then
