@@ -25,10 +25,10 @@ local function dirName(path)
     return d
 end
 
----@class TiledTileLayer
+---@class TiledTileLayer: table
 ---@field tiledMap TiledMap
 ---@field layerDef any
-local TiledTileLayerBase = setmetatable({}, TiledLayerCommonMT)
+local TiledTileLayerBase = {}
 local TiledTileLayerMT = {
     __index=function(t, k)
         return TiledTileLayerBase[k] or t.layerDef[k]
@@ -109,7 +109,7 @@ do
                     gid = self.layerDef.data[y*self.layerDef.width + x + 1]
                 end
             end
-            
+
             if gid ~= 0 then
                 return x, y, gid
             end
@@ -117,10 +117,10 @@ do
     end
 end
 
----@class TiledObjectGroup
+---@class TiledObjectGroup: table
 ---@field tiledMap TiledMap
 ---@field layerDef any
-local TiledObjectGroupBase = setmetatable({}, TiledLayerCommonMT)
+local TiledObjectGroupBase = {}
 local TiledObjectGroupMT = {
     __index=function(t, k)
         return TiledObjectGroupBase[k] or t.layerDef[k]
@@ -141,10 +141,10 @@ do
     function TiledObjectGroupBase:isImageLayer() return false end
 end
 
----@class TiledImageLayer
+---@class TiledImageLayer: table
 ---@field tiledMap TiledMap
 ---@field layerDef any
-local TiledImageLayerBase = setmetatable({}, TiledLayerCommonMT)
+local TiledImageLayerBase = {}
 local TiledImageLayerMT = {
     __index=function(t, k)
         return TiledImageLayerBase[k] or t.layerDef[k]
@@ -167,8 +167,9 @@ end
 
 ---@alias TiledLayer TiledTileLayer|TiledObjectGroup|TiledImageLayer
 
----@class TiledTileset
+---@class TiledTileset: table
 ---@field tiledMap TiledMap
+---@field gidSpan number
 ---@field tilesetDef any
 ---@field private quads love.Quad[]
 local TiledTilesetBase = {}
@@ -197,9 +198,20 @@ function TiledTileset(tiledMap, tilesetDef)
         end
     end
 
+    local gidSpan
+    if tilesetDef.image then
+        gidSpan = tilesetDef.tilecount
+    else
+        gidSpan = 0
+        for _, tile in ipairs(tilesetDef.tiles) do
+            gidSpan = math.max(gidSpan, tile.id + 1)
+        end
+    end
+
     return setmetatable({
         tiledMap=tiledMap,
         tilesetDef=tilesetDef,
+        gidSpan=gidSpan,
         quads=quads,
     }, TiledTilesetMT)
 end
@@ -207,7 +219,7 @@ end
 do
     ---@return boolean
     function TiledTilesetBase:containsGid(gid)
-        return gid >= self.tilesetDef.firstgid and gid < self.tilesetDef.firstgid + self.tilesetDef.tilecount
+        return gid >= self.tilesetDef.firstgid and gid < self.tilesetDef.firstgid + self.gidSpan
     end
 
     ---@return any
@@ -230,7 +242,7 @@ do
     end
 end
 
----@class TiledMap
+---@class TiledMap: table
 ---@field layers TiledLayer[]
 ---@field tilesets TiledTileset[]objDef
 ---@field tmj any
@@ -322,12 +334,12 @@ do
             end
         end
     end
-    
+
     function TiledMapBase:resolveField(obj, name)
         if obj[name] and obj[name] ~= "" then
             return obj[name]
         end
-        
+
         if obj.gid then
             local tileset = self:tilesetForGid(obj.gid)
             if tileset then
@@ -358,7 +370,7 @@ do
             if tileset then
                 local tileData = tileset:tileData(obj.gid)
                 if tileData then
-                    return self:resolvePropertyOnPlain(tileData, name)
+                    return self:resolveProperty(tileData, name)
                 end
             end
         end
@@ -366,7 +378,7 @@ do
 
     function TiledMapBase:tilesetForGid(gid)
         for _, tileset in ipairs(self.tilesets) do
-            if gid >= tileset.tilesetDef.firstgid and gid < tileset.tilesetDef.firstgid + tileset.tilesetDef.tilecount then
+            if gid >= tileset.tilesetDef.firstgid and gid < tileset.tilesetDef.firstgid + tileset.gidSpan then
                 return tileset
             end
         end
