@@ -9,6 +9,7 @@ end
 function example:leave()
 end
 
+---@param dt number
 function example:update(dt)
 end
 

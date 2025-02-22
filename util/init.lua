@@ -1,6 +1,8 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
+---@alias Rect {x:number, y:number, w:number, h:number}
+
 ---Find the first item in an array that matches a table.
 ---
 ---@param array any[] The array to search.
@@ -52,6 +54,26 @@ local function distance(x1, y1, x2, y2)
     local xDist = x2 - x1
     local yDist = y2 - y1
     return math.sqrt(xDist*xDist + yDist*yDist)
+end
+
+---Returns whether a point is inside a rectangle {x=X, y=Y, w=W, h=H}.
+---
+---@param x number
+---@param y number
+---@param r Rect
+local function pointXrect(x, y, r)
+    return x >= r.x and y >= r.y and x < r.x+r.w and y < r.y+r.h
+end
+
+---Returns whether two rectangles overlap.
+---
+---@param a Rect
+---@param b Rect
+local function rectXrect(a, b)
+    return a.x < b.x+b.w and
+        a.y < b.y+b.h and
+        b.x < a.x+a.w and
+        b.y < a.y+a.h
 end
 
 ---Clamps a number to an interval [min, max].
@@ -122,6 +144,8 @@ return {
     findTableMatch=findTableMatch,
     findPredMatch=findPredMatch,
     distance=distance,
+    pointXrect=pointXrect,
+    rectXrect=rectXrect,
     clamp=clamp,
     wrap=wrap,
     lerp=lerp,
