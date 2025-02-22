@@ -47,9 +47,4 @@ proxies.music = Proxy(function(k)
     return "assets/music/" .. k .. ".ogg"
 end)
 
----@type table<string, table>
-proxies.states = Proxy(function(k)
-    return assert(love.filesystem.load("states/" .. k .. ".lua"))()
-end)
-
 return proxies
