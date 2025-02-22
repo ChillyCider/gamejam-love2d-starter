@@ -13,22 +13,18 @@ TIME_ROLLOVER = 3600.0
 ---@param sprites Sprite[]
 ---@param dt number
 local function updateAll(sprites, dt)
-    for _, spr in ipairs(sprites) do
-        if spr.active then spr:update(dt) end
-    end
+    for _,s in ipairs(sprites) do if s.active then s:update(dt) end end
 end
 
 ---@param sprites Sprite[]
 local function drawAll(sprites)
-    for _, spr in ipairs(sprites) do
-        if spr.visible then spr:draw() end
-    end
+    for _, spr in ipairs(sprites) do if spr.visible then spr:draw() end end
 end
 
 Mantis = Sprite:new()
 function Mantis:update(dt)
     Sprite.update(self, dt)
-    self.rotation = math.cos(time)
+    self.rotation = math.cos(time * 2*math.pi / 3.6)
 end
 
 function love.load()
@@ -47,10 +43,9 @@ end
 
 ---@param dt number
 function love.update(dt)
-    time = time + dt
-    if time > TIME_ROLLOVER then time = (time - TIME_ROLLOVER) end
-    updateAll(sprites, dt)
+    time = util.wrap(time + dt, 0.0, TIME_ROLLOVER)
     util.Timers:update(dt)
+    updateAll(sprites, dt)
 end
 
 function love.draw()
