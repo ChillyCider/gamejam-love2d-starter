@@ -4,6 +4,7 @@
 ---@class GameObject
 ---@field visible boolean
 ---@field active boolean
+---@field exists boolean
 ---@field destroy fun(GameObject)
 ---@field update fun(GameObject, dt:number)
 ---@field draw fun(GameObject)

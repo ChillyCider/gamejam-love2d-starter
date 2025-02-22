@@ -86,6 +86,7 @@ function Sprite:new(x, y, imgOrAnimSheet, tag, loops)
         h=0,
         visible=true,
         active=true,
+        exists=true,
         rotation=0,
         scaleX=1,
         scaleY=1,

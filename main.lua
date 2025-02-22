@@ -13,6 +13,7 @@ justReleased = {} ---@type table<love.Scancode, boolean>
 time = 0.0
 TIME_ROLLOVER = 3600.0
 
+---@class Mantis: Sprite
 Mantis = Sprite:new()
 function Mantis:update(dt)
     Sprite.update(self, dt)
@@ -20,17 +21,19 @@ function Mantis:update(dt)
 end
 
 sprites = Group:new()
-mantises = Group:new()
+mantises = Group:new(3)
 sprites:add(mantises)
 
 function love.load()
-    for _=1,10 do
-        mantises:add(Mantis:new(
-            math.random(0, love.graphics.getWidth()),
-            math.random(0, love.graphics.getHeight()),
-            R.sheets.mantis
-        ))
-    end
+    util.Timers:every(1, function()
+        local m = mantises:recycle(function()
+            return Mantis:new(0, 0, R.sheets.mantis)
+        end)
+
+        ---@cast m Mantis
+        m.x = math.random(0, love.graphics.getWidth())
+        m.y = math.random(0, love.graphics.getHeight())
+    end)
 end
 
 ---@param dt number
