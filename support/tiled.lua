@@ -28,6 +28,15 @@ end
 ---@class TiledTileLayer: table
 ---@field tiledMap TiledMap
 ---@field layerDef any
+---@field data number[]
+---@field width number
+---@field height number
+---@field name string
+---@field opacity number
+---@field parallaxx number?
+---@field parallaxy number?
+---@field x number
+---@field y number
 local TiledTileLayerBase = {}
 local TiledTileLayerMT = {
     __index=function(t, k)
@@ -169,6 +178,15 @@ end
 
 ---@class TiledTileset: table
 ---@field tiledMap TiledMap
+---@field firstgid number
+---@field columns number
+---@field image string?
+---@field margin number
+---@field spacing number
+---@field objectalignment string?
+---@field tilecount number
+---@field tilewidth number
+---@field tileheight number
 ---@field gidSpan number
 ---@field tilesetDef any
 ---@field private quads love.Quad[]
@@ -244,8 +262,15 @@ end
 
 ---@class TiledMap: table
 ---@field layers TiledLayer[]
----@field tilesets TiledTileset[]objDef
----@field tmj any
+---@field tilesets TiledTileset[]
+---@field width number
+---@field height number
+---@field tilewidth number
+---@field tileheight number
+---@field infinite boolean
+---@field orientation string
+---@field renderorder string
+---@field tmj table
 local TiledMapBase = {}
 local TiledMapMT = {
     __index=function(t, k)
