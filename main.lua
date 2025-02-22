@@ -16,6 +16,7 @@ function love.load()
     state = R.states.example
 end
 
+---@param dt number
 function love.update(dt)
     util.Timers:update(dt)
     if state.update then state:update(dt) end
