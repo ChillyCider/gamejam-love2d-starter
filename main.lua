@@ -7,7 +7,6 @@ support = require "support"
 util = require "util"
 
 function love.load()
-    state = R.states.example
 end
 
 ---@param dt number
