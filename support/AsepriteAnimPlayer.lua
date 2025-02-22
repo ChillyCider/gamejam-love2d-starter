@@ -111,7 +111,7 @@ function AsepriteAnimPlayer:update(dt)
                     end
                 end
             end
-            
+
             if self.loops > 0 and self.loopsDone == self.loops and direction ~= "pingpong" then
                 self.frameIndex = oldFrame
             end

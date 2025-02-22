@@ -1,8 +1,11 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
-require "R"
-local util = require "util"
+-- Go ahead and import misc. modules as globals
+R = require "R"
+support = require "support"
+util = require "util"
+
 state = {}
 
 function _G.switchState(newState)
