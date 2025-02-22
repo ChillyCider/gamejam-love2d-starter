@@ -5,7 +5,7 @@ local AsepriteSheet = require "support.aseprite_sheet"
 local json = require "support.json"
 
 ---Holder for resource loaders
-local R = {}
+R = {}
 
 local function Proxy(loadFunc)
     -- based on vrld's proxy
@@ -54,5 +54,3 @@ end)
 R.states = Proxy(function(k)
     return assert(love.filesystem.load("states/" .. k .. ".lua"))()
 end)
-
-return R

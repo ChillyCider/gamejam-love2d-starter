@@ -1,9 +1,8 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
+require "R"
 local util = require "util"
-local R = require "R"
-
 state = {}
 
 function _G.switchState(newState)
