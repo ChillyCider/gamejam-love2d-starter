@@ -5,5 +5,5 @@ return {
     AsepriteAnimPlayer=require "support.AsepriteAnimPlayer",
     AsepriteSheet=require "support.AsepriteSheet",
     json=require "support.json",
-    TiledMap=require "support.TiledMap"
+    tiled=require "support.tiled"
 }
