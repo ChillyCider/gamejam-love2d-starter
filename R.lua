@@ -24,7 +24,7 @@ proxies.images = Proxy(function(k)
     return love.graphics.newImage("assets/images/" .. k .. ".jpg")
 end)
 
----@type table<string, AsepriteSheet>
+---@type table<string, support.AsepriteSheet>
 proxies.sheets = Proxy(function(k)
     return support.AsepriteSheet(R.images[k], support.json.load("assets/images/" .. k .. ".json"))
 end)

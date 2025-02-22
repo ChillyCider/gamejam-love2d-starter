@@ -1,7 +1,7 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
----@class AsepriteSheet
+---@class support.AsepriteSheet
 ---@field image love.Image
 ---@field data table
 ---@field quads love.Quad[]
@@ -25,7 +25,7 @@ end
 ---
 ---@param imageOrImagePath love.Image|string The image for the sprite sheet.
 ---@param sheetData any The decoded JSON Aseprite sprite sheet, or the path to that JSON file.
----@return AsepriteSheet
+---@return support.AsepriteSheet
 return function(imageOrImagePath, sheetData)
     if type(imageOrImagePath) == "string" then
         imageOrImagePath = love.graphics.newImage(imageOrImagePath)

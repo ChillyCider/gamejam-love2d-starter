@@ -1,7 +1,7 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
----@class AsepriteAnimPlayer
+---@class support.AsepriteAnimPlayer
 ---@field paused boolean Whether to pause the animation.
 ---@field speedFactor number Speed at which to play the animation. 1 means normal, 0 means frozen.
 local AsepriteAnimPlayer = {}
@@ -9,12 +9,12 @@ local MT = {__index=AsepriteAnimPlayer}
 
 ---Sets the animation player to play a specific tag of the Aseprite sheet.
 ---
----@param asepriteSheet AsepriteSheet Aseprite sheet.
+---@param asepriteSheet support.AsepriteSheet Aseprite sheet.
 ---@param tagName string? The tag to play.
 ---@param loops number? Number of times to play the animation, or 0 or nil to loop forever.
 ---@param forceRestart boolean? Whether to restart the animation if it is already playing.
 function AsepriteAnimPlayer:play(asepriteSheet, tagName, loops, forceRestart)
-    if self.asepriteSheet ~= asepriteSheet then
+    if asepriteSheet ~= nil and self.asepriteSheet ~= asepriteSheet then
         self.asepriteSheet = asepriteSheet
         forceRestart = true
     end
@@ -148,10 +148,10 @@ end
 
 ---Returns a new Aseprite sheet player.
 ---
----@param asepriteSheet AsepriteSheet
+---@param asepriteSheet support.AsepriteSheet
 ---@param tagName string?
 ---@param loops number?
----@return AsepriteAnimPlayer
+---@return support.AsepriteAnimPlayer
 return function(asepriteSheet, tagName, loops)
     local obj = setmetatable({
         paused=false,
