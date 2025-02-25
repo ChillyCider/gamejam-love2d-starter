@@ -91,7 +91,7 @@ function sound_player.playDirect(soundData, volume)
     -- Configure the source before playing
     source:seek(0)
     source:setVolume(volume)
-    source:setAirAbsorption(0)
+    --source:setAirAbsorption(0)
     source:setPitch(1)
     source:play()
 
@@ -119,6 +119,7 @@ function sound_player.playMusic(path, volume)
     sound_player.currentMusicPath = path
     sound_player.musicSource = love.audio.newSource(path, "stream")
     sound_player.musicSource:setVolume(volume or 1)
+    sound_player.musicSource:play()
 
     return sound_player.musicSource
 end
