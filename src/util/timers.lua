@@ -5,21 +5,21 @@
 ---@field seconds number
 ---@field callback function
 
----@class util.Timers
+---@class util.timers
 ---@field private activeTimers table<util.TimerHandle, boolean?>
 ---@field private toAdd table<util.TimerHandle, boolean?>
-local Timers = {}
-local TimersMT = {__index=Timers}
+local timers = {}
+local timersMT = {__index=timers}
 
-function Timers.new()
+function timers.new()
     return setmetatable({
         activeTimers={},
         toAdd={},
-    }, TimersMT)
+    }, timersMT)
 end
 
 ---Removes all timers.
-function Timers:clear()
+function timers:clear()
     for newTimer, _ in pairs(self.toAdd) do
         self.toAdd[newTimer] = nil
     end
@@ -34,7 +34,7 @@ end
 ---@param seconds number The number of seconds to wait.
 ---@param callback function The callback to invoke when the timer is done.
 ---@return util.TimerHandle
-function Timers:delay(seconds, callback)
+function timers:delay(seconds, callback)
     local handle = {
         seconds=seconds,
         callback=function()
@@ -50,23 +50,23 @@ end
 ---@param seconds number The number of seconds between invocations.
 ---@param callback function The callback to invoke.
 ---@return util.TimerHandle
-function Timers:every(seconds, callback)
+function timers:every(seconds, callback)
     local handle
-    
-    handle = self:delay(seconds, function(func)
+
+    handle = self:delay(seconds, function(_)
         callback()
 
         -- Go again
         handle.seconds = handle.seconds + seconds
     end)
-    
+
     return handle
 end
 
 ---Call this every love.update().
 ---
 ---@param dt number Seconds elapsed since last frame.
-function Timers:update(dt)
+function timers:update(dt)
     -- Move new timers to the active list
     for newTimer, _ in pairs(self.toAdd) do
         self.toAdd[newTimer] = nil
@@ -92,7 +92,7 @@ end
 ---Cancel a timer.
 ---
 ---@param handle util.TimerHandle The timer to cancel.
-function Timers:cancel(handle)
+function timers:cancel(handle)
     if self.activeTimers[handle] then
         self.activeTimers[handle] = nil
     elseif self.toAdd[handle] then
@@ -100,4 +100,4 @@ function Timers:cancel(handle)
     end
 end
 
-return Timers.new()
+return timers.new()

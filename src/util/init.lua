@@ -140,7 +140,7 @@ local function lerpAngle(a, b, progress)
 end
 
 return {
-    Timers=require "util.timers",
+    timers=require "util.timers",
     findTableMatch=findTableMatch,
     findPredMatch=findPredMatch,
     distance=distance,
