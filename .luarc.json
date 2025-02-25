@@ -9,6 +9,10 @@
     "runtime.special": {
         "love.filesystem.load": "loadfile"
     },
+    "runtime.path": [
+        "src/?.lua",
+        "src/?/init.lua"
+    ],
     "hint.enable": false,
     "completion.keywordSnippet": "Disable",
     "completion.showWord": "Disable",
