@@ -7,12 +7,19 @@ local R = require "R"
 local util = require "util"
 
 function love.load()
+    -- Load all game assets
     R.loadResources()
 end
 
 ---@param dt number
 function love.update(dt)
-    time = util.wrap(globals.time + dt, 0.0, globals.TIME_ROLLOVER)
+    -- Move clock forward, rolling over if necessary
+    globals.time = globals.time + dt
+    if globals.time >= globals.TIME_ROLLOVER then
+        globals.time = globals.time - globals.TIME_ROLLOVER
+    end
+
+    -- Update all running timers
     util.timers:update(dt)
 end
 
