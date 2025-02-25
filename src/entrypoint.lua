@@ -25,6 +25,8 @@ mantises = Group:new(3)
 sprites:add(mantises)
 
 function love.load()
+    R.loadResources()
+
     util.Timers:every(1, function()
         local m = mantises:recycle(function()
             return Mantis:new(0, 0, R.sheets.mantis)
