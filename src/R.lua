@@ -5,7 +5,7 @@ local json = require "support.json"
 local aseprite_sheet = require "support.aseprite_sheet"
 
 ---Holder for resources
-local R = {}
+local R = {loaded=false}
 
 function R.loadResources()
     ---@class R.images
@@ -19,13 +19,24 @@ function R.loadResources()
     }
 
     ---@class R.fonts
-    R.fonts = {}
+    R.fonts = {
+        -- example=love.graphics.newFont("assets/fonts/example.fnt"),
+    }
 
     ---@class R.sounds
-    R.sounds = {}
+    R.sounds = {
+        -- I recommend you put love.SoundData objects in here, so that multiple
+        -- love.Source can use the same sound data.
+        --
+        -- example=love.sound.newSoundData("assets/sounds/explosion.wav"),
+    }
 
     ---@class R.music
-    R.music = {}
+    R.music = {
+        -- Probably just put musics' filenames in this table since music is streamed
+    }
+
+    R.loaded = true
 end
 
 return R

@@ -4,11 +4,13 @@
 globals = require "globals"
 
 local R = require "R"
+local sound_player = require "sound_player"
 local util = require "util"
 
 function love.load()
     -- Load all game assets
     R.loadResources()
+    sound_player.init()
 end
 
 ---@param dt number
@@ -21,6 +23,9 @@ function love.update(dt)
 
     -- Update all running timers
     util.timers:update(dt)
+
+    -- Update the sound player
+    sound_player.update()
 end
 
 function love.draw()
