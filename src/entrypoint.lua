@@ -13,7 +13,7 @@ end
 ---@param dt number
 function love.update(dt)
     time = util.wrap(globals.time + dt, 0.0, globals.TIME_ROLLOVER)
-    util.Timers:update(dt)
+    util.timers:update(dt)
 end
 
 function love.draw()

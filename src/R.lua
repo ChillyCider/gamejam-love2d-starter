@@ -2,7 +2,7 @@
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
 local json = require "support.json"
-local AsepriteSheet = require "support.AsepriteSheet"
+local aseprite_sheet = require "support.aseprite_sheet"
 
 ---Holder for resources
 local R = {}
@@ -15,7 +15,7 @@ function R.loadResources()
 
     ---@class R.sheets
     R.sheets = {
-        mantis=AsepriteSheet(R.images.mantis, json.load("assets/images/mantis.json")),
+        mantis=aseprite_sheet(R.images.mantis, json.load("assets/images/mantis.json")),
     }
 
     ---@class R.fonts
