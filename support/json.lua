@@ -308,7 +308,7 @@ local function parseObject(t)
         if t.tokenType == "comma" then
             t:advance()
         elseif t.tokenType ~= "rbrace" then
-            error("Unexpected " .. t.tokentype .. " token in JSON object")
+            error("Unexpected " .. t.tokenType .. " token in JSON object")
         end
 
         obj[key] = value
