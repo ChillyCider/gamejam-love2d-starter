@@ -5,12 +5,12 @@ TIMERS
 local util = require "util"
 ```
 
-The default timer manager is util.Timers and you can use it for all
+The default timer manager is util.timers and you can use it for all
 your timers if you want. However, you can also create a new Timer
-manager using util.Timers.new().
+manager using util.timers.new().
 
 ```lua
-local myTimers = util.Timers.new()
+local myTimers = util.timers.new()
 
 myTimers:delay(2.5, function() print("hello") end)
 myTimers:delay(5, function(thisFunc)
