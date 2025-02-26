@@ -16,7 +16,7 @@ setmetatable(sound_player.sources, {__mode="k"})
 setmetatable(sound_player.requests, {__mode="k"})
 
 ---Must be called AFTER R.loadResources()
-function sound_player.init()
+function sound_player.createInitialSources()
     assert(R.loaded)
 
     for _, soundData in pairs(R.sounds) do

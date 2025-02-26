@@ -9,7 +9,7 @@ local clock = require "clock"
 function love.load()
     -- Load all game assets
     R.loadResources()
-    sound_player.init()
+    sound_player.createInitialSources()
 end
 
 ---@param dt number
