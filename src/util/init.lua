@@ -141,6 +141,7 @@ end
 
 return {
     timers=require "util.timers",
+    matrix=require "util.matrix",
     findTableMatch=findTableMatch,
     findPredMatch=findPredMatch,
     distance=distance,
