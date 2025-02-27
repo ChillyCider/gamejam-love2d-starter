@@ -6,7 +6,7 @@
 ---@param aspectRatio number width/height
 ---@param near number Usually should be 1
 ---@param far number Something really far out
-function frustum3D(fov, aspectRatio, near, far)
+function perspective3D(fov, aspectRatio, near, far)
     local tanHalfFov = math.tan(math.rad(fov/2))
 
     return 1 / (tanHalfFov * aspectRatio), 0, 0, 0,
@@ -51,7 +51,7 @@ function transform3DPoint(mat, x, y, z)
 end
 
 return {
-    frustum=frustum3D,
+    perspective3D=perspective3D,
     translate3D=translate3D,
     rotate3D=rotate3D,
     scale3D=scale3D,
