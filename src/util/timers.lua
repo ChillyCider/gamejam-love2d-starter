@@ -36,12 +36,7 @@ end
 ---@param callback fun(dt:number) The callback to invoke every tick.
 ---@return util.TimerHandle
 function timers:every_tick(how_long, callback)
-    local handle = {
-        seconds=how_long,
-        ongoing_action=function(dt)
-            callback(dt)
-        end
-    }
+    local handle = {seconds=how_long, ongoing_action=callback}
     self.toAdd[handle] = true
     return handle
 end
@@ -52,12 +47,7 @@ end
 ---@param callback function The callback to invoke when the timer is done.
 ---@return util.TimerHandle
 function timers:delay(seconds, callback)
-    local handle = {
-        seconds=seconds,
-        end_action=function()
-            callback(callback)
-        end
-    }
+    local handle = {seconds=seconds, end_action=function() callback(callback) end}
     self.toAdd[handle] = true
     return handle
 end
@@ -132,45 +122,28 @@ end
 ---@class util.timers.ease
 timers.ease = {}
 
----@param x number
 function timers.ease.linear(x) return x end
-
----@param x number
 function timers.ease.quadIn(x) return x*x end
-
----@param x number
 function timers.ease.cubicIn(x) return x*x*x end
-
----@param x number
 function timers.ease.quartIn(x) return x*x*x*x end
-
----@param x number
 function timers.ease.quintIn(x) return x*x*x*x*x end
-
----@param x number
 function timers.ease.circIn(x)
     ---@diagnostic disable-next-line:deprecated
     return 1 - math.sqrt(1 - math.pow(x, 2))
 end
-
----@param x number
 function timers.ease.expoIn(x)
-    ---@diagnostic disable-next-line:deprecated
     if x == 0 then
         return 0
     else
+        ---@diagnostic disable-next-line:deprecated
         return math.pow(2, 10 * x - 10)
     end
 end
-
----@param x number
 function timers.ease.backIn(x)
     local c1 = 1.70158
     local c3 = c1 + 1
     return c3 * x * x * x - c1 * x * x
 end
-
----@param x number
 function timers.ease.elasticIn(x)
     local c4 = 2*math.pi/3
     if x == 0 then
@@ -182,8 +155,6 @@ function timers.ease.elasticIn(x)
         return -math.pow(2, 10 * x - 10) * math.sin((x * 10 - 10.75) * c4)
     end
 end
-
----@param x number
 function timers.ease.bounceOut(x)
     local n1 = 7.5625
     local d1 = 2.75
