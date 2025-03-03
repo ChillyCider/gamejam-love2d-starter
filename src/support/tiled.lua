@@ -25,8 +25,8 @@ local function dirName(path)
     return d
 end
 
----@class TiledTileLayer: table
----@field tiledMap TiledMap
+---@class support.tiled.TiledTileLayer: table
+---@field tiledMap support.tiled.TiledMap
 ---@field layerDef any
 ---@field data number[]
 ---@field width number
@@ -48,7 +48,7 @@ local TiledTileLayerMT = {
 ---
 ---@param tiledMap any
 ---@param layerDef any
----@return TiledTileLayer
+---@return support.tiled.TiledTileLayer
 function TiledTileLayer(tiledMap, layerDef)
     return setmetatable({
         tiledMap=tiledMap,
@@ -126,8 +126,8 @@ do
     end
 end
 
----@class TiledObjectGroup: table
----@field tiledMap TiledMap
+---@class support.tiled.TiledObjectGroup: table
+---@field tiledMap support.tiled.TiledMap
 ---@field layerDef any
 local TiledObjectGroupBase = {}
 local TiledObjectGroupMT = {
@@ -150,8 +150,8 @@ do
     function TiledObjectGroupBase:isImageLayer() return false end
 end
 
----@class TiledImageLayer: table
----@field tiledMap TiledMap
+---@class support.tiled.TiledImageLayer: table
+---@field tiledMap support.tiled.TiledMap
 ---@field layerDef any
 local TiledImageLayerBase = {}
 local TiledImageLayerMT = {
@@ -174,10 +174,10 @@ do
     function TiledImageLayerBase:isImageLayer() return true end
 end
 
----@alias TiledLayer TiledTileLayer|TiledObjectGroup|TiledImageLayer
+---@alias support.tiled.TiledLayer support.tiled.TiledTileLayer|support.tiled.TiledObjectGroup|support.tiled.TiledImageLayer
 
----@class TiledTileset: table
----@field tiledMap TiledMap
+---@class support.tiled.TiledTileset: table
+---@field tiledMap support.tiled.TiledMap
 ---@field firstgid number
 ---@field columns number
 ---@field image string?
@@ -197,9 +197,9 @@ local TiledTilesetMT = {
     end
 }
 
----@param tiledMap TiledMap
+---@param tiledMap support.tiled.TiledMap
 ---@param tilesetDef any
----@return TiledTileset
+---@return support.tiled.TiledTileset
 function TiledTileset(tiledMap, tilesetDef)
     local quads = {}
 
@@ -260,9 +260,9 @@ do
     end
 end
 
----@class TiledMap: table
----@field layers TiledLayer[]
----@field tilesets TiledTileset[]
+---@class support.tiled.TiledMap: table
+---@field layers support.tiled.TiledLayer[]
+---@field tilesets support.tiled.TiledTileset[]
 ---@field width number
 ---@field height number
 ---@field tilewidth number
@@ -280,13 +280,13 @@ local TiledMapMT = {
 
 ---@param tmjPath string The path to the TMJ file, used for resolving tileset paths
 ---@param jsonLoader fun(path:string):any A JSON loader
----@return TiledMap
+---@return support.tiled.TiledMap
 function TiledMap(tmjPath, jsonLoader)
     local decodedTMJ = jsonLoader(tmjPath)
 
-    ---@type TiledLayer[]
+    ---@type support.tiled.TiledLayer[]
     local layers = {}
-    ---@type TiledTileset[]
+    ---@type support.tiled.TiledTileset[]
     local tilesets = {}
     local o = {
         layers=layers,
@@ -316,10 +316,10 @@ function TiledMap(tmjPath, jsonLoader)
                 tsj[k] = v
             end
 
-            table.insert(tilesets, TiledTileset(o --[[@as TiledMap]], tsj))
+            table.insert(tilesets, TiledTileset(o --[[@as support.tiled.TiledMap]], tsj))
         else
             -- Embedded tileset
-            table.insert(tilesets, TiledTileset(o --[[@as TiledMap]], tilesetDef))
+            table.insert(tilesets, TiledTileset(o --[[@as support.tiled.TiledMap]], tilesetDef))
         end
     end
 
@@ -329,7 +329,7 @@ end
 do
     ---Finds and returns a layer by name.
     ---@param name string The name of the layer
-    ---@return TiledLayer?
+    ---@return support.tiled.TiledLayer?
     function TiledMapBase:layerByName(name)
         for _, layer in ipairs(self.layers) do
             if layer.layerDef.name == name then

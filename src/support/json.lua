@@ -130,7 +130,7 @@ local function parseNumberLiteral(s, len, pos)
 
         local expPartFound = false
 
-        while pos <= len and string.find("0123456789", s:sub(pos, pos), 1, true) do 
+        while pos <= len and string.find("0123456789", s:sub(pos, pos), 1, true) do
             pos = pos + 1
             expPartFound = true
         end
