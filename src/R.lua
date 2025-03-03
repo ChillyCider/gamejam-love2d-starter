@@ -11,6 +11,8 @@ function R.loadResources()
     ---------------------------------
     -- EXPLICITLY PRELOADED ASSETS --
     ---------------------------------
+    -- Lazy loading behavior is implemented below these. In short,
+    -- attempting to access a nil field will attempt to load it.
 
     ---@class R.images
     R.images = {
