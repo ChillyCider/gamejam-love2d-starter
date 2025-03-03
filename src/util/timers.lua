@@ -183,6 +183,7 @@ function timers.ease.elasticIn(x)
     end
 end
 
+---@param x number
 function timers.ease.bounceOut(x)
     local n1 = 7.5625
     local d1 = 2.75
