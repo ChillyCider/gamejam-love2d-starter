@@ -43,11 +43,12 @@ end
 ---@param x number
 ---@param y number
 ---@param z number
-function transform3DPoint(mat, x, y, z)
-    local w = 1
+function transform3DPoint(mat, x, y, z, w)
+    w = w or 1
     return mat[1]*x + mat[2]*y + mat[3]*z + mat[4]*w,
            mat[5]*x + mat[6]*y + mat[7]*z + mat[8]*w,
-           mat[9]*x + mat[10]*y + mat[11]*z + mat[12]*w
+           mat[9]*x + mat[10]*y + mat[11]*z + mat[12]*w,
+           mat[13]*x + mat[14]*y + mat[15]*z + mat[16]*w
 end
 
 return {

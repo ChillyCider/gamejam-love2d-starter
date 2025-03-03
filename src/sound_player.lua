@@ -34,6 +34,18 @@ function sound_player.update()
     end
 end
 
+---Returns whether a sound is playing.
+---@return love.Source?
+function sound_player.playing(soundData)
+    for _, src in pairs(sound_player.sources[soundData]) do
+        if src:isPlaying() then
+            return src
+        end
+    end
+
+    return nil
+end
+
 ---Requests a sound to be played at next tick, overwriting quieter requests
 ---for the same sound. This means you won't blast the speakers if you play
 ---the same sound twice on the same frame.
@@ -119,6 +131,7 @@ function sound_player.playMusic(path, volume)
     sound_player.currentMusicPath = path
     sound_player.musicSource = love.audio.newSource(path, "stream")
     sound_player.musicSource:setVolume(volume or 1)
+    sound_player.musicSource:setLooping(true)
     sound_player.musicSource:play()
 
     return sound_player.musicSource
