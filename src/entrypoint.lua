@@ -3,7 +3,7 @@
 
 local R = require "R"
 local sound_player = require "sound_player"
-local util = require "util"
+local timers = require "util.timers"
 local clock = require "clock"
 
 function love.load()
@@ -15,7 +15,7 @@ end
 ---@param dt number
 function love.update(dt)
     clock.advance(dt)
-    util.timers:update(dt)
+    timers:update(dt)
     sound_player.update()
 end
 
