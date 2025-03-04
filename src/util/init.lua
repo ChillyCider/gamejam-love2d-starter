@@ -5,7 +5,7 @@
 
 ---Find the first item in an array that matches a table.
 ---
----@param array any[] The array to search.
+---@param array table[] The array to search.
 ---@param t table The table to use as the matching predicate.
 ---@return any? The item that matches, or nil.
 ---@return number? The index of the item, or nil.
@@ -140,9 +140,6 @@ local function lerpAngle(a, b, progress)
 end
 
 return {
-    timers=require "util.timers",
-    matrix=require "util.matrix",
-    signal=require "util.signal",
     findTableMatch=findTableMatch,
     findPredMatch=findPredMatch,
     distance=distance,
