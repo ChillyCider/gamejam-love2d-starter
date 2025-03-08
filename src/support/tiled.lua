@@ -66,7 +66,7 @@ do
     ---@param y number Row
     ---@return number
     function TiledTileLayerBase:gidAt(x, y)
-        return self.layerDef.data[y*self.layerDef.width + x]
+        return self.layerDef.data[y*self.layerDef.width + x + 1]
     end
 
     ---Loops through tiles on this tile layer.
@@ -128,6 +128,7 @@ end
 
 ---@class support.tiled.TiledObjectGroup: table
 ---@field tiledMap support.tiled.TiledMap
+---@field objects table[]
 ---@field layerDef any
 local TiledObjectGroupBase = {}
 local TiledObjectGroupMT = {
@@ -270,6 +271,8 @@ end
 ---@field infinite boolean
 ---@field orientation string
 ---@field renderorder string
+---@field worldX number
+---@field worldY number
 ---@field tmj table
 local TiledMapBase = {}
 local TiledMapMT = {
@@ -280,8 +283,10 @@ local TiledMapMT = {
 
 ---@param tmjPath string The path to the TMJ file, used for resolving tileset paths
 ---@param jsonLoader fun(path:string):any A JSON loader
+---@param worldX number?
+---@param worldY number?
 ---@return support.tiled.TiledMap
-function TiledMap(tmjPath, jsonLoader)
+function TiledMap(tmjPath, jsonLoader, worldX, worldY)
     local decodedTMJ = jsonLoader(tmjPath)
 
     ---@type support.tiled.TiledLayer[]
@@ -292,6 +297,8 @@ function TiledMap(tmjPath, jsonLoader)
         layers=layers,
         tilesets=tilesets,
         tmj=decodedTMJ,
+        worldX=worldX or 0,
+        worldY=worldY or 0,
     }
 
     for _, layerDef in ipairs(decodedTMJ.layers) do
