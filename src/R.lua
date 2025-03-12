@@ -1,9 +1,6 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
-local json = require "support.json"
-local aseprite_sheet = require "support.aseprite_sheet"
-
 ---Holder for resources
 local R = {loaded=false}
 
@@ -16,10 +13,6 @@ function R.loadResources()
 
     ---@class R.images
     R.images = {
-    }
-
-    ---@class R.sheets
-    R.sheets = {
     }
 
     ---@class R.fonts
@@ -49,13 +42,6 @@ function R.loadResources()
         local img = love.graphics.newImage("assets/images/" .. k .. ".png")
         rawset(t, k, img)
         return img
-    end})
-
-    -- Handler for lazily loaded sheets
-    setmetatable(R.sheets, {__index=function(t, k)
-        local sheet = aseprite_sheet(R.images[k], json.load("assets/images/" .. k .. ".json"))
-        rawset(t, k, sheet)
-        return sheet
     end})
 
     -- Handler for lazily loaded fonts
