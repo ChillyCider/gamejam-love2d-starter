@@ -1,7 +1,8 @@
 #!/bin/bash
 
 if [ -z "$1" -o -z "$2" ]; then
-    echo "usage 1: $0 run\nusage 2: $0 {web|win32|win64} dir-to-produce" >&2
+    echo "usage 1: $0 run" >&2
+    echo "usage 2: $0 {web|win32|win64} dir-to-produce" >&2
     exit 1
 fi
 
@@ -27,7 +28,7 @@ cp -r -t "$folder/staging" "$SOURCE_DIR/assets/" "$SOURCE_DIR/src/" "$SOURCE_DIR
 IS_DEBUG_BUILD=0
 if [ "$BUILD_TYPE" = "run" ]; then
     IS_DEBUG_BUILD=1
-end
+fi
 bash "$SOURCE_DIR/process_assets.sh" "$folder/staging" "$IS_DEBUG_BUILD"
 
 # Build the love file
