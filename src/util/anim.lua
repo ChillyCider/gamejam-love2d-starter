@@ -8,14 +8,18 @@
 ---@field durations number[]|number
 ---@field current_frame integer
 ---@field frame_time_spent number
+---@field playing boolean
 ---@field playback_speed number
+---@field loops integer
+---@field loops_done integer
+---@field on_finished function?
 ---@field private direction util.anim.Direction
 local anim = {}
 local MT = {__index=anim}
 
 ---@return util.anim
 function anim:clone()
-    return anim(self.quads, self.durations)
+    return anim(self.quads, self.durations, self.loops, self.on_finished)
 end
 
 ---Draws the animation onto the screen or current Canvas.
@@ -39,19 +43,53 @@ local function get_frame_duration(durations, frame_number)
     end
 end
 
+function anim:play()
+    self.playing = true
+end
+
+function anim:pause()
+    self.playing = false
+end
+
 ---Advances the animation by an elapsed number of seconds (may be fractional).
 ---
 ---@param dt number
 function anim:update(dt)
+    if not self.playing then
+        return
+    end
+
     if self.direction == "forward" then
         self.frame_time_spent = self.frame_time_spent + dt
+
         local frame_duration = get_frame_duration(self.durations, self.current_frame)
         while self.frame_time_spent >= frame_duration do
             self.frame_time_spent = self.frame_time_spent - frame_duration
 
             self.current_frame = self.current_frame + 1
             if self.current_frame > #self.quads then
-                self.current_frame = 1
+                if self.loops > 0 then
+                    -- Limited number of loops
+                    self.loops_done = self.loops_done + 1
+
+                    if self.loops_done >= self.loops then
+                        self.current_frame = self.current_frame - 1
+                        self:pause()
+
+                        if self.on_finished then
+                            self.on_finished()
+                        end
+
+                        -- Interrupt the animation
+                        break
+                    else
+                        -- Still have more loops to do
+                        self.current_frame = 1
+                    end
+                else
+                    -- Unlimited loops
+                    self.current_frame = 1
+                end
             end
 
             frame_duration = get_frame_duration(self.durations, self.current_frame)
@@ -65,14 +103,20 @@ end
 
 ---@param quads love.Quad[]
 ---@param durations number[]|number
+---@param loops number?
+---@param on_finished function?
 ---@return util.anim
-return function(quads, durations)
+return function(quads, durations, loops, on_finished)
     return setmetatable({
         quads=quads,
         durations=durations,
         current_frame=1,
         frame_time_spent=0,
+        playing=true,
         playback_speed=1,
         direction="forward",
+        loops=loops or 0,
+        loops_done=0,
+        on_finished=on_finished,
     }, MT)
 end
