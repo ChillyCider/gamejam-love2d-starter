@@ -1,16 +1,17 @@
 #!/bin/bash
 
-if [ "x$1" = "x" -o "x$2" = "x" ]; then
-    echo "usage: $0 {web|win32|win64} dir-to-produce" >&2
+if [ -z "$1" -o -z "$2" ]; then
+    echo "usage 1: $0 run\nusage 2: $0 {web|win32|win64} dir-to-produce" >&2
     exit 1
 fi
 
+SOURCE_DIR="$(basename "$0")"
 BUILD_TYPE="$1"
 OUTPUT_DIR="$2"
 
-GAME_WIDTH="$(cat conf.lua | gawk 'match($0, /\.width\s*=\s*([0-9]+)/, m) { print m[1] }')"
-GAME_HEIGHT="$(cat conf.lua | gawk 'match($0, /\.height\s*=\s*([0-9]+)/, m) { print m[1] }')"
-GAME_TITLE="$(cat conf.lua | gawk 'match($0, /\.title\s*=\s*"([^"]+)"/, m) { print m[1] }')"
+GAME_WIDTH="$(cat "$SOURCE_DIR/conf.lua" | gawk 'match($0, /\.width\s*=\s*([0-9]+)/, m) { print m[1] }')"
+GAME_HEIGHT="$(cat "$SOURCE_DIR/conf.lua" | gawk 'match($0, /\.height\s*=\s*([0-9]+)/, m) { print m[1] }')"
+GAME_TITLE="$(cat "$SOURCE_DIR/conf.lua" | gawk 'match($0, /\.title\s*=\s*"([^"]+)"/, m) { print m[1] }')"
 
 echo "Game width detected in conf.lua as $GAME_WIDTH"
 echo "Game height detected in conf.lua as $GAME_HEIGHT"
@@ -19,9 +20,23 @@ echo "Game title detected in conf.lua as $GAME_TITLE"
 folder="$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")"
 trap "rm -rf $folder" EXIT
 
-zip -q -r "$folder/game.love" assets/ src/ conf.lua main.lua
+mkdir "$folder/staging"
+cp -r -t "$folder/staging" "$SOURCE_DIR/assets/" "$SOURCE_DIR/src/" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
 
-if [ "x$BUILD_TYPE" = "xweb" ]; then
+# Preprocess assets
+IS_DEBUG_BUILD=0
+if [ "$BUILD_TYPE" = "run" ]; then
+    IS_DEBUG_BUILD=1
+end
+bash "$SOURCE_DIR/process_assets.sh" "$folder/staging" "$IS_DEBUG_BUILD"
+
+# Build the love file
+zip -q -r "$folder/game.love" "$folder/staging/*"
+
+# Now run the requested run or platform build behavior
+if [ "$BUILD_TYPE" = "run" ]; then
+    love "$folder/game.love"
+elif [ "$BUILD_TYPE" = "web" ]; then
     npx love.js -c "$folder/game.love" -t "$GAME_TITLE" "$OUTPUT_DIR"
     rm -rf "$OUTPUT_DIR/theme"
     cat <<EOF > "$OUTPUT_DIR/index.html"
@@ -136,14 +151,14 @@ if [ "x$BUILD_TYPE" = "xweb" ]; then
   </body>
 </html>
 EOF
-elif [ "x$BUILD_TYPE" = "xwin64" ]; then
-    cp -T -r "platform/win64" "$OUTPUT_DIR"
-    cat "platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
+elif [ "$BUILD_TYPE" = "win64" ]; then
+    cp -T -r "$SOURCE_DIR/platform/win64" "$OUTPUT_DIR"
+    cat "$SOURCE_DIR/platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
-elif [ "x$BUILD_TYPE" = "xwin32" ]; then
-    cp -T -r "platform/win32" "$OUTPUT_DIR"
-    cat "platform/win32/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
+elif [ "$BUILD_TYPE" = "win32" ]; then
+    cp -T -r "$SOURCE_DIR/platform/win32" "$OUTPUT_DIR"
+    cat "$SOURCE_DIR/platform/win32/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
 else
