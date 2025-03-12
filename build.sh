@@ -5,7 +5,7 @@ if [ -z "$1" -o -z "$2" ]; then
     exit 1
 fi
 
-SOURCE_DIR="$(basename "$0")"
+SOURCE_DIR="$(dirname "$0")"
 BUILD_TYPE="$1"
 OUTPUT_DIR="$2"
 
