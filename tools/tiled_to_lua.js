@@ -106,3 +106,7 @@ var customMapFormat = {
     // }
 };
 tiled.registerMapFormat("customlua", customMapFormat);
+
+let tmxFormat = tiled.mapFormatForFile(tiled.scriptArguments[0]);
+let map = tmxFormat.read(tiled.scriptArguments[0]);
+customMapFormat.write(map, tiled.scriptArguments[1]);

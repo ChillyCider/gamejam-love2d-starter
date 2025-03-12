@@ -15,7 +15,18 @@ echo "Running tasks..." >&2
 #######################################
 
 # for example, converting Tiled maps into Lua files
-# ...
+find "$SCRIPT_DIR/assets" -type f -name '*.tmx' -printf "%P\n" | while read TMX_PATH; do
+    TMX_LUA_PATH="$(basename "$TMX_PATH" .tmx).lua"
+    FILE_DIR="$(dirname "$OUTPUT_DIR/assets/$TMX_LUA_PATH")"
+    if [ ! -d "$FILE_DIR" ]; then
+        mkdir -p "$FILE_DIR"
+    fi
+
+    tiled -e "$SCRIPT_DIR/tools/tiled_to_lua.js" "$SCRIPT_DIR/assets/$TMX_PATH" "$OUTPUT_DIR/assets/$TMX_LUA_PATH"
+
+    # remove the tmx from the staging directory
+    rm -f "$OUTPUT_DIR/assets/$TMX_PATH"
+done
 
 ###################################
 # COMMON ASSET STUFF FOR ANY GAME #
