@@ -19,7 +19,7 @@ echo "Game height detected in conf.lua as $GAME_HEIGHT"
 echo "Game title detected in conf.lua as $GAME_TITLE"
 
 folder="$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")"
-trap "rm -rf $folder" EXIT
+#trap "rm -rf $folder" EXIT
 
 mkdir "$folder/staging"
 cp -r -t "$folder/staging" "$SOURCE_DIR/assets/" "$SOURCE_DIR/src/" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
@@ -32,7 +32,7 @@ fi
 bash "$SOURCE_DIR/process_assets.sh" "$folder/staging" "$IS_DEBUG_BUILD"
 
 # Build the love file
-zip -q -r "$folder/game.love" "$folder/staging/*"
+zip -q -r "$folder/game.love" "$folder/staging/"*
 
 # Now run the requested run or platform build behavior
 if [ "$BUILD_TYPE" = "run" ]; then
