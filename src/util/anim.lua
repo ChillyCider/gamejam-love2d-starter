@@ -22,6 +22,21 @@ function anim:clone()
     return anim(self.quads, self.durations, self.loops, self.on_finished)
 end
 
+---@param other util.anim
+---@return util.anim
+function anim:changeTo(other)
+    self.quads = other.quads
+    self.durations = other.durations
+    self.current_frame = 1
+    self.frame_time_spent = 0
+    self.playing = true
+    self.playback_speed = other.playback_speed
+    self.loops = other.loops
+    self.loops_done = 0
+    self.on_finished = other.on_finished
+    self.direction = other.direction
+end
+
 ---Draws the animation onto the screen or current Canvas.
 ---
 ---@param x number

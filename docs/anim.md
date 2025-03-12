@@ -38,12 +38,18 @@ end
 If all quads have the same duration, then you can just pass
 a single number for the duration argument of anim().
 
-Animations can also be cloned. They share quad information
-internally. You can use this to switch what animation is
-playing.
+Animations can be cloned with `:clone()`. You can use this to bootstrap a new
+animation player from a previously initialized one.
 
 ```lua
+-- When starting out
 playing_anim = idle_anim:clone()
--- ... later
-playing_anim = run_anim:clone()
+```
+
+Later, when you want to change the playing animation, you can do so with
+`:changeTo(other)`. This will copy most fields from another animation.
+
+```lua
+-- ... later, when needing to change
+playing_anim:changeTo(run_anim)
 ```
