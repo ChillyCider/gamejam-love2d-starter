@@ -1,6 +1,9 @@
 -- (c) 2025 Charlie Murphy
 -- This code is licensed under MIT license (see LICENSE.txt for details)
 
+local spritesheet = require "util.spritesheet"
+local anim = require "util.anim"
+
 ---Holder for resources
 local R = {loaded=false}
 
@@ -13,6 +16,18 @@ function R.loadResources()
 
     ---@class R.images
     R.images = {
+    }
+
+    ---@class R.sheets
+    R.sheets = {
+        --                    cols, rows, width, height
+        -- mantis=spritesheet(   4,    2, R.images.mantis:getSize())
+    }
+
+    ---@class R.anims
+    R.anims = {
+        --                                        quads,  durations
+        -- mantis_idle=anim(R.sheets.mantis:quads {1,2}, {0.5, 0.5}),
     }
 
     ---@class R.fonts
