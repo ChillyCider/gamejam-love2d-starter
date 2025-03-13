@@ -6,6 +6,9 @@
 /**           UTILITY FUNCS         **/
 /*************************************/
 
+const ARRAY_ITEM_PRETTIFY_THRESHOLD = 40;
+const LUA_ARRAYS_WRAP_COLUMN = 50;
+
 // prefix a string with copies of a character
 function prefixChars(s, char, count) {
     var prefix = "";
@@ -15,8 +18,18 @@ function prefixChars(s, char, count) {
     return prefix + s;
 }
 
+function isSimpleKey(v) {
+    if (typeof v !== 'string')
+        return false;
+
+    if (!v.match(/^[_A-Za-z][_A-Za-z0-9]*$/))
+        return false;
+
+    return true;
+}
+
 // take a value and turn it into a Lua-encoded form
-function toLua(value, pretty=false, indent=4, indentChar=" ", currentIndent=0) {
+function toLua(value, pretty=false, indent=1, indentChar=" ", currentIndent=0) {
     if (typeof value === "number" || typeof value === "string") {
         // numbers and strings, close enough to JSON so just use JSON
         return JSON.stringify(value);
@@ -25,15 +38,53 @@ function toLua(value, pretty=false, indent=4, indentChar=" ", currentIndent=0) {
         return "nil";
     } else if (typeof value === "object") {
         if (Array.isArray(value)) {
-            // Arrays use curly braces in Lua
-            return (pretty ? "{\n" : "{") +
-                value.map(v => prefixChars(toLua(v, pretty, indent, indentChar, currentIndent + indent), indentChar, pretty ? currentIndent + indent : 0)).join(pretty ? ",\n" : ",")  +
-            (pretty ? "\n" + prefixChars("}", indentChar, pretty ? currentIndent : 0) : "}");
+            if (value.length > 0) {
+                let arrayItems = [];
+
+                for (let item of value) {
+                    let luaizedItem = toLua(item);
+                    if (luaizedItem.length >= ARRAY_ITEM_PRETTIFY_THRESHOLD) {
+                        // It's long so let's use the pretty version of it
+                        luaizedItem = toLua(item, true);
+                    }
+                    arrayItems.push(luaizedItem);
+                }
+
+                let accumulatedLines = [];
+                let currentLine = "";
+                while (arrayItems.length > 0) {
+                    let item = arrayItems.shift();
+
+                    if (currentLine === "") {
+                        currentLine = item;
+                    } else if ((currentLine + ", " + item).length >= LUA_ARRAYS_WRAP_COLUMN) {
+                        // flush this line
+                        accumulatedLines.push(currentLine + ",");
+                        currentLine = "";
+                    } else {
+                        currentLine = currentLine + ", " + item;
+                    }
+                }
+                if (currentLine !== "") {
+                    accumulatedLines.push(currentLine);
+                }
+
+                // Arrays use curly braces in Lua
+                return (pretty ? "{\n" : "{") +
+                    accumulatedLines.map(line => prefixChars(line, indentChar, pretty ? currentIndent + indent : 0)).join(pretty ? "\n" : " ")  +
+                    (pretty ? "\n" + prefixChars("}", indentChar, pretty ? currentIndent : 0) : "}");
+            } else {
+                // Arrays use curly braces in Lua
+                return "{}";
+            }
         } else {
             // Objects use equal sign instead of colon
             var a = [];
             for (let prop of Object.keys(value)) {
-                a.push(prefixChars(prop + "=" + toLua(value[prop], pretty, indent, indentChar, currentIndent + indent), indentChar, pretty ? currentIndent + indent : 0));
+                let formattedKey = prop;
+                if (!isSimpleKey(prop))
+                    formattedKey = "[" + toLua(prop) + "]";
+                a.push(prefixChars(formattedKey + "=" + toLua(value[prop], pretty, indent, indentChar, currentIndent + indent), indentChar, pretty ? currentIndent + indent : 0));
             }
             return (pretty ? "{\n" : "{") + a.join(pretty ? ",\n" : ",") + (pretty ? "\n" + prefixChars("}", indentChar, pretty ? currentIndent : 0) : "}");
         }
@@ -66,17 +117,24 @@ var customMapFormat = {
     //  - TileLayer:
     //    - width      as in number of tiles
     //    - height     as in number of tiles
-    //    - cellAt(x, y) returns a cell, which has tileId, flippedHorizontally, empty, etc.
     //    - tileAt(x, y) returns a Tile or null if empty
-    //  - ObjectGroup: << Note, "Group" not "Layer" unlike above
+    //    - flagsAt(x, y) returns a bitwise combination of Tile.FlippedHorizontally, etc.
+    //  - ObjectGroup: << Note, "Group" not "Layer" unlike above method isObjectLayer()
     //    - objects is an Array of MapObject
     //  - MapObject:
     //    - name
-    //    - resolvedProperty("key")
+    //    - resolvedProperty("blah")
     //    - x
     //    - y
-    //    - tileFlippedHorizontally
+    //    - tileFlippedHorizontally, tileFlippedVertically
     //    - rotation
+    //    - shape      may be MapObject.Rectangle, MapObject.Polygon, MapObject.Polyline, MapObject.Ellipse, etc...
+    //    - tile       If it is a "tile" object
+    //    - polygon    an array of {x: ..., y: ...} if this is a polygon object
+    //  - Tile:
+    //    - tileset                   the Tileset that the tile belongs to
+    //    - id                        is the ID of the tile within the tileset
+    //    - resolvedProperty("blah")  obtains a property, which may even be inherited
     //  - ImageLayer:
     //    - imageFileName
     //    - opacity
@@ -92,6 +150,9 @@ var customMapFormat = {
         f.write("-- directly or else your changes might get overwritten!\n");
         f.write("return ");
         f.write(toLua({
+            a: 3,
+            b: [1, 2, 4, "hello world", 50, 9013, 831, "double dragen", 818319, 0x03, 500, "cool", {a:3}],
+            c: {a:3},
         }, true));
         f.write("\n");
         f.commit();
