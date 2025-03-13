@@ -60,7 +60,7 @@ function toLua(value, pretty=false, indent=1, indentChar=" ", currentIndent=0) {
                     } else if ((currentLine + ", " + item).length >= LUA_ARRAYS_WRAP_COLUMN) {
                         // flush this line
                         accumulatedLines.push(currentLine + ",");
-                        currentLine = "";
+                        currentLine = item;
                     } else {
                         currentLine = currentLine + ", " + item;
                     }
@@ -151,7 +151,24 @@ var customMapFormat = {
         f.write("return ");
         f.write(toLua({
             a: 3,
-            b: [1, 2, 4, "hello world", 50, 9013, 831, "double dragen", 818319, 0x03, 500, "cool", {a:3}],
+            b: [
+                1,
+                2,
+                4,
+                "hello world",
+                50,
+                9013,
+                831,
+                "double dragen",
+                818319,
+                0x03,
+                500,
+                "cool",
+                {
+                    a: 3,
+                    b: [99999,99999,999999,9999999,99999,999999,99999,999999,80,80,80,8088,43,43,43,43,8,378,7,870,708,78989897,798]
+                }
+            ],
             c: {a:3},
         }, true));
         f.write("\n");
