@@ -1,15 +1,18 @@
 #!/bin/bash
 
+# Argument check
 if [ -z "$1" -o -z "$2" ]; then
     echo "usage 1: $0 run anything-just-padding" >&2
     echo "usage 2: $0 {love|web|win32|win64} dir-or-file-to-produce" >&2
     exit 1
 fi
-
 SOURCE_DIR="$(dirname "$0")"
 BUILD_TYPE="$1"
 OUTPUT_DIR="$2"
 
+# Read conf.lua to find the game's resolution.
+# This is used to correctly size the canvas in the web build.
+# Scroll down for details.
 GAME_WIDTH="$(cat "$SOURCE_DIR/conf.lua" | gawk 'match($0, /\.width\s*=\s*([0-9]+)/, m) { print m[1] }')"
 GAME_HEIGHT="$(cat "$SOURCE_DIR/conf.lua" | gawk 'match($0, /\.height\s*=\s*([0-9]+)/, m) { print m[1] }')"
 GAME_TITLE="$(cat "$SOURCE_DIR/conf.lua" | gawk 'match($0, /\.title\s*=\s*"([^"]+)"/, m) { print m[1] }')"
@@ -18,28 +21,42 @@ echo "Game width detected in conf.lua as $GAME_WIDTH"
 echo "Game height detected in conf.lua as $GAME_HEIGHT"
 echo "Game title detected in conf.lua as $GAME_TITLE"
 
+# Create a temp directory for our constructed *.love file
 folder="$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")"
 trap "rm -rf $folder" EXIT
 
+# We will prepare the *.love contents in a staging directory
 mkdir "$folder/staging"
 cp -r -t "$folder/staging" "$SOURCE_DIR/src/" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
 
-# Preprocess assets
+# Preprocess assets, putting them in the staging folder
 IS_DEBUG_BUILD=0
 if [ "$BUILD_TYPE" = "run" ]; then
     IS_DEBUG_BUILD=1
 fi
 bash "$SOURCE_DIR/process_assets.sh" "$folder/staging" "$IS_DEBUG_BUILD"
 
-# Build the love file
+# Compress the staged files to produce the *.love artifact
 (cd "$folder/staging" && zip -q -r "$folder/game.love" *)
 
-# Now run the requested run or platform build behavior
+# NOW we have a love file.
+# It is time to do the secondary step that was specified by the user.
 if [ "$BUILD_TYPE" = "run" ]; then
+    #############
+    #    RUN    #
+    #############
+    # The user just wants to playtest the game.
     love "$folder/game.love"
 elif [ "$BUILD_TYPE" = "love" ]; then
+    ##############
+    #    LOVE    #
+    ##############
+    # The user wants the built *.love file.
     cp "$folder/game.love" "$OUTPUT_DIR"
 elif [ "$BUILD_TYPE" = "web" ]; then
+    #############
+    #    WEB    #
+    #############
     npx love.js -c "$folder/game.love" -t "$GAME_TITLE" "$OUTPUT_DIR"
     rm -rf "$OUTPUT_DIR/theme"
     cat <<EOF > "$OUTPUT_DIR/index.html"
@@ -155,16 +172,25 @@ elif [ "$BUILD_TYPE" = "web" ]; then
 </html>
 EOF
 elif [ "$BUILD_TYPE" = "win64" ]; then
+    #############
+    #   WIN64   #
+    #############
     cp -T -r "$SOURCE_DIR/platform/win64" "$OUTPUT_DIR"
     cat "$SOURCE_DIR/platform/win64/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
 elif [ "$BUILD_TYPE" = "win32" ]; then
+    #############
+    #   WIN32   #
+    #############
     cp -T -r "$SOURCE_DIR/platform/win32" "$OUTPUT_DIR"
     cat "$SOURCE_DIR/platform/win32/love.exe" "$folder/game.love" > "$OUTPUT_DIR/love.exe"
     mv "$OUTPUT_DIR/love.exe" "$OUTPUT_DIR/$GAME_TITLE.exe"
     echo "$OUTPUT_DIR/$GAME_TITLE.exe produced. Feel free to change the icon with Resource Hacker or something."
 else
+    #############
+    #  UNKNOWN  #
+    #############
     echo "Unknown build type '$BUILD_TYPE'" >&2
     exit 1
 fi
