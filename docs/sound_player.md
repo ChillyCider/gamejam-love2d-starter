@@ -16,7 +16,7 @@ SOUND EFFECT EXAMPLE
 
 ```lua
 function love.load()
-    R.loadResources()
+    R.load_resources()
 
     -- creates an initial love.Source for each sound in R.sounds
     -- (optional)
@@ -40,7 +40,7 @@ MUSIC TUTORIAL
 
 ```lua
 function love.load()
-    R.loadResources()
-    sound_player.playMusic(R.music.foo)
+    R.load_resources()
+    sound_player.play_music(R.music.foo)
 end
 ```

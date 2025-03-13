@@ -7,7 +7,7 @@ local anim = require "util.anim"
 ---Holder for resources
 local R = {loaded=false}
 
-function R.loadResources()
+function R.load_resources()
     ---------------------------------
     -- EXPLICITLY PRELOADED ASSETS --
     ---------------------------------

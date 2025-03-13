@@ -16,7 +16,7 @@ setmetatable(sound_player.sources, {__mode="k"})
 setmetatable(sound_player.requests, {__mode="k"})
 
 ---Must be called AFTER R.loadResources()
-function sound_player.createInitialSources()
+function sound_player.create_initial_sources()
     assert(R.loaded)
 
     for _, soundData in pairs(R.sounds) do
@@ -29,7 +29,7 @@ end
 ---Must be called every frame to process play requests.
 function sound_player.update()
     for soundData, volume in pairs(sound_player.requests) do
-        sound_player.playDirect(soundData, volume)
+        sound_player.play_direct(soundData, volume)
         sound_player.requests[soundData] = nil
     end
 end
@@ -67,7 +67,7 @@ end
 ---@param soundData love.SoundData
 ---@param volume number?
 ---@return love.Source? An audio source. DON'T keep a reference to this, because it will be reclaimed when it finishes.
-function sound_player.playDirect(soundData, volume)
+function sound_player.play_direct(soundData, volume)
     volume = volume or 1
 
     if not sound_player.sources[soundData] then
@@ -114,7 +114,7 @@ end
 ---
 ---@param path string
 ---@return love.Source
-function sound_player.playMusic(path, volume)
+function sound_player.play_music(path, volume)
     if path == nil or (path ~= nil and sound_player.currentMusicPath == path) then
         if volume then
             sound_player.musicSource:setVolume(volume)
@@ -138,14 +138,14 @@ function sound_player.playMusic(path, volume)
 end
 
 ---Pauses the currently playing music.
-function sound_player.pauseMusic()
+function sound_player.pause_music()
     if sound_player.musicSource then
         sound_player.musicSource:pause()
     end
 end
 
 ---Stops the currently playing music.
-function sound_player.stopMusic()
+function sound_player.stop_music()
     if sound_player.musicSource then
         sound_player.musicSource:stop()
     end
