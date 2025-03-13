@@ -18,26 +18,34 @@ function spritesheet:quads(indices)
     return ret
 end
 
+---@param cell_w integer
+---@param cell_h integer
 ---@param cols integer
 ---@param rows integer
----@param width integer
----@param height integer
+---@param image_width integer
+---@param image_height integer
+---@param x_off integer?
+---@param y_off integer?
+---@param x_gap integer?
+---@param y_gap integer?
 ---@return util.spritesheet
-return function(cols, rows, width, height)
-    local quads_array = {}
+return function(cell_w, cell_h, cols, rows, image_width, image_height, x_off, y_off, x_gap, y_gap)
+    x_off = x_off or 0
+    y_off = y_off or 0
+    x_gap = x_gap or 0
+    y_gap = y_gap or 0
 
-    local cell_w = width / cols
-    local cell_h = height / rows
+    local quads_array = {}
 
     for r=0,rows - 1 do
         for c=0,cols - 1 do
             table.insert(quads_array, love.graphics.newQuad(
-                c * cell_w,
-                r * cell_h,
+                x_off + c*(cell_w + x_gap),
+                y_off + r*(cell_h + y_gap),
                 cell_w,
                 cell_h,
-                width,
-                height
+                image_width,
+                image_height
             ))
         end
     end
