@@ -2,7 +2,7 @@
 
 if [ -z "$1" -o -z "$2" ]; then
     echo "usage 1: $0 run anything-just-padding" >&2
-    echo "usage 2: $0 {web|win32|win64} dir-to-produce" >&2
+    echo "usage 2: $0 {love|web|win32|win64} dir-or-file-to-produce" >&2
     exit 1
 fi
 
@@ -37,6 +37,8 @@ bash "$SOURCE_DIR/process_assets.sh" "$folder/staging" "$IS_DEBUG_BUILD"
 # Now run the requested run or platform build behavior
 if [ "$BUILD_TYPE" = "run" ]; then
     love "$folder/game.love"
+elif [ "$BUILD_TYPE" = "love" ]; then
+    cp "$folder/game.love" "$OUTPUT_DIR"
 elif [ "$BUILD_TYPE" = "web" ]; then
     npx love.js -c "$folder/game.love" -t "$GAME_TITLE" "$OUTPUT_DIR"
     rm -rf "$OUTPUT_DIR/theme"
