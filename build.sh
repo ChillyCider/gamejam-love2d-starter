@@ -22,7 +22,7 @@ folder="$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")"
 trap "rm -rf $folder" EXIT
 
 mkdir "$folder/staging"
-cp -r -t "$folder/staging" "$SOURCE_DIR/assets/" "$SOURCE_DIR/src/" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
+cp -r -t "$folder/staging" "$SOURCE_DIR/src/" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
 
 # Preprocess assets
 IS_DEBUG_BUILD=0
