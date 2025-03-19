@@ -46,7 +46,7 @@ find "$SCRIPT_DIR" -type f \( -path "$SCRIPT_DIR/src"/'*' -o -path "$SCRIPT_DIR/
                     -e '/^\s*---@/d' \
                     -e 's/\s*---@.*$//' \
                     "$SCRIPT_DIR/$ASSET" | \
-                    awk '!NF {if (++n <= 2) print; next}; {n=0;print}' > "$OUTPUT_DIR/$ASSET"
+                    awk '!NF {if (++n < 2) print; next}; {n=0;print}' > "$OUTPUT_DIR/$ASSET"
             else
                 echo -n "COPY $ASSET " >&2
                 cp -t "$OUTPUT_SUB_DIR" "$SCRIPT_DIR/$ASSET"
