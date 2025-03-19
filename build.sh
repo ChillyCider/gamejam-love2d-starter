@@ -27,7 +27,7 @@ trap "rm -rf $folder" EXIT
 
 # We will prepare the *.love contents in a staging directory
 mkdir "$folder/staging"
-cp -r -t "$folder/staging" "$SOURCE_DIR/src/" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
+cp -r -t "$folder/staging" "$SOURCE_DIR/conf.lua" "$SOURCE_DIR/main.lua"
 
 # Preprocess assets, putting them in the staging folder
 IS_DEBUG_BUILD=0

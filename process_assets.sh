@@ -10,22 +10,20 @@ fi
 
 echo "Running tasks..." >&2
 
-
-# for example, converting Tiled maps into Lua files
-find "$SCRIPT_DIR/assets" -type f -printf "%P\n" | while read ASSET; do
+find "$SCRIPT_DIR" -type f \( -path "$SCRIPT_DIR/src"/'*' -o -path "$SCRIPT_DIR/assets"/'*' \) -printf "%P\n" | while read ASSET; do
     case "$ASSET" in
         #######################################
         # GAME SPECIFIC ASSET STUFF GOES HERE #
         #######################################
         *.tmx)
             TMX_LUA_PATH="$(basename "$ASSET" .tmx).lua"
-            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/assets/$TMX_LUA_PATH")"
+            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/$ASSET")"
             if [ ! -d "$OUTPUT_SUB_DIR" ]; then
                 mkdir -p "$OUTPUT_SUB_DIR"
             fi
 
-            echo -n "TILED assets/$ASSET " >&2
-            tiled -e "$SCRIPT_DIR/tools/tiled_to_lua.js" "$SCRIPT_DIR/assets/$ASSET" "$OUTPUT_DIR/assets/$TMX_LUA_PATH"
+            echo -n "TILED $ASSET " >&2
+            tiled -e "$SCRIPT_DIR/tools/tiled_to_lua.js" "$SCRIPT_DIR/$ASSET" "$OUTPUT_SUB_DIR/$TMX_LUA_PATH"
             if [ "$?" = 0 ]; then
                 echo "[ok]"
             else
@@ -36,20 +34,45 @@ find "$SCRIPT_DIR/assets" -type f -printf "%P\n" | while read ASSET; do
         ###################################
         # COMMON ASSET STUFF FOR ANY GAME #
         ###################################
+        *.lua)
+            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/$ASSET")"
+            if [ ! -d "$OUTPUT_SUB_DIR" ]; then
+                mkdir -p "$OUTPUT_SUB_DIR"
+            fi
+
+            if [ "$DEBUG_BUILD" != 1 ]; then # release builds only
+                echo -n "STRIP-ANNOTATIONS $ASSET " >&2
+                sed \
+                    -e '/^\s*---@/d' \
+                    -e 's/\s*---@.*$//' \
+                    "$SCRIPT_DIR/$ASSET" | \
+                    awk '!NF {if (++n <= 2) print; next}; {n=0;print}' > "$OUTPUT_DIR/$ASSET"
+            else
+                echo -n "COPY $ASSET " >&2
+                cp -t "$OUTPUT_SUB_DIR" "$SCRIPT_DIR/$ASSET"
+            fi
+
+            if [ "$?" = 0 ]; then
+                echo "[ok]"
+            else
+                echo "[fail"]
+            fi
+        ;;
+
         *.png)
             # Ensure the output folder exists
-            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/assets/$ASSET")"
+            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/$ASSET")"
             if [ ! -d "$OUTPUT_SUB_DIR" ]; then
                 mkdir -p "$OUTPUT_SUB_DIR"
             fi
 
             if [ "$DEBUG_BUILD" != 1 ]; then # release builds only
                 # Perform the compression
-                echo -n "PNGCRUSH assets/$ASSET " >&2
-                pngcrush -q "$SCRIPT_DIR/assets/$ASSET" "$OUTPUT_DIR/assets/$ASSET" 2>/dev/null
+                echo -n "PNGCRUSH $ASSET " >&2
+                pngcrush -q "$SCRIPT_DIR/$ASSET" "$OUTPUT_DIR/$ASSET" 2>/dev/null
             else
-                echo -n "COPY assets/$ASSET " >&2
-                cp -t "$OUTPUT_SUB_DIR" "$SCRIPT_DIR/assets/$ASSET"
+                echo -n "COPY $ASSET " >&2
+                cp -t "$OUTPUT_SUB_DIR" "$SCRIPT_DIR/$ASSET"
             fi
 
             # Report success or failure
@@ -62,13 +85,13 @@ find "$SCRIPT_DIR/assets" -type f -printf "%P\n" | while read ASSET; do
 
         *)
             # Copy anything that wasn't considered above
-            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/assets/$ASSET")"
+            OUTPUT_SUB_DIR="$(dirname "$OUTPUT_DIR/$ASSET")"
             if [ ! -d "$OUTPUT_SUB_DIR" ]; then
                 mkdir -p "$OUTPUT_SUB_DIR"
             fi
             
-            echo -n "COPY assets/$ASSET " >&2
-            cp -t "$OUTPUT_SUB_DIR" "$SCRIPT_DIR/assets/$ASSET"
+            echo -n "COPY $ASSET " >&2
+            cp -t "$OUTPUT_SUB_DIR" "$SCRIPT_DIR/$ASSET"
             if [ "$?" = 0 ]; then
                 echo "[ok]"
             else
